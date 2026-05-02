@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <title>Speakly</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#0c1021;--neon:#00f2fe;--yellow:#ffcc00;--neon-glow:rgba(0,242,254,.3);--card-bg:rgba(255,255,255,.04);--border:rgba(0,242,254,.2);--text:#e0f7ff;--muted:#7a9bb5;--red:#ff4b4b;--green:#58cc02;}
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;display:flex;flex-direction:column;}
+        body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,242,254,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,242,254,.03) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;}
+
+        nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 40px;height:68px;display:flex;align-items:center;justify-content:space-between;background:rgba(12,16,33,.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+        .nav-logo{font-family:'Baloo 2',cursive;font-size:1.7rem;font-weight:800;color:var(--neon);text-shadow:0 0 15px var(--neon-glow);text-decoration:none;}
+        .nav-logo span{color:var(--yellow);}
+        .nav-links{display:flex;align-items:center;gap:8px;}
+        .nav-links a{color:var(--muted);text-decoration:none;font-weight:700;font-size:.92rem;padding:8px 16px;border-radius:10px;transition:all .25s;}
+        .nav-links a:hover{color:var(--neon);background:rgba(0,242,254,.08);}
+        .nav-cta a{padding:9px 22px;border:1.5px solid var(--neon);border-radius:25px;color:var(--neon);background:transparent;font-family:'Nunito',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;transition:all .25s;text-decoration:none;}
+        .nav-cta a:hover{background:rgba(0,242,254,.1);}
+
+        .page{position:relative;z-index:1;flex:1;display:flex;align-items:center;justify-content:center;padding:90px 20px 40px;}
+
+        .login-card{background:rgba(10,14,28,.92);border:1px solid var(--border);border-radius:28px;padding:48px 44px;width:100%;max-width:440px;backdrop-filter:blur(12px);animation:slideUp .5s ease-out;position:relative;}
+        .card-close-btn{position:absolute;top:16px;right:18px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#aaa;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;line-height:1;}
+        .card-close-btn:hover{background:rgba(255,80,80,.15);border-color:rgba(255,80,80,.4);color:#ff6b6b;transform:scale(1.1);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+
+        .kuku-small{width:70px;height:84px;background:var(--yellow);border-radius:50% 50% 45% 45%;border:3px solid #000;margin:0 auto 20px;position:relative;animation:float 3s ease-in-out infinite;box-shadow:0 0 20px rgba(255,204,0,.3);}
+        .kuku-small .eye{width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:20px;border:2px solid #000;}
+        .kuku-small .eye.l{left:14px;}.kuku-small .eye.r{right:14px;}
+        .kuku-small .beak{width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:11px solid #ff6b6b;position:absolute;top:42px;left:27px;}
+        @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+
+        .login-title{font-family:'Baloo 2',cursive;font-size:1.9rem;font-weight:800;text-align:center;margin-bottom:4px;}
+        .login-sub{color:var(--muted);font-size:.9rem;font-weight:600;text-align:center;margin-bottom:28px;}
+
+        .social-btn{width:100%;padding:13px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--text);font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:.3s;font-size:.92rem;margin-bottom:8px;}
+        .social-btn:hover{background:rgba(255,255,255,.1);border-color:var(--neon);box-shadow:0 0 15px var(--neon-glow);}
+
+        .divider{margin:22px 0;display:flex;align-items:center;gap:12px;}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.1);}
+        .divider span{color:var(--muted);font-size:.8rem;font-weight:700;}
+
+        .input-group{margin-bottom:16px;}
+        .input-label{display:block;font-size:.82rem;font-weight:800;color:var(--muted);margin-bottom:7px;letter-spacing:.4px;text-transform:uppercase;}
+        .neon-input{width:100%;padding:14px 16px;background:rgba(0,0,0,.35);border:1.5px solid rgba(255,255,255,.1);border-radius:14px;color:var(--text);outline:none;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:600;transition:all .3s;}
+        .neon-input:focus{border-color:var(--neon);box-shadow:0 0 16px rgba(0,242,254,.15);}
+        .neon-input.valid{border-color:var(--green)!important;}
+        .neon-input.invalid{border-color:var(--red)!important;}
+        .input-hint{font-size:.76rem;margin-top:6px;font-weight:600;min-height:16px;}
+        .hint-err{color:var(--red);}
+        .hint-ok{color:var(--green);}
+
+        .pw-wrap{position:relative;}
+        .pw-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:0;}
+
+        .forgot{display:block;text-align:right;font-size:.82rem;color:var(--neon);text-decoration:none;font-weight:700;margin-top:-8px;margin-bottom:16px;transition:.25s;}
+        .forgot:hover{text-shadow:0 0 10px var(--neon-glow);}
+
+        .captcha-box{background:rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;transition:.3s;}
+        .captcha-left{display:flex;align-items:center;gap:12px;}
+        .captcha-check{width:22px;height:22px;border:2px solid var(--muted);border-radius:4px;cursor:pointer;transition:.3s;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .captcha-check.checked{border-color:var(--green);background:var(--green);}
+        .captcha-label{font-size:.9rem;font-weight:600;}
+        .captcha-logo{font-size:.62rem;color:var(--muted);text-align:right;line-height:1.4;}
+
+        .submit-btn{width:100%;background:var(--neon);color:#0c1021;border:none;padding:16px;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:.3s;opacity:.5;pointer-events:none;}
+        .submit-btn.enabled{opacity:1;pointer-events:all;}
+        .submit-btn.enabled:hover{box-shadow:0 0 25px var(--neon);transform:translateY(-2px);}
+
+        .signup-link{margin-top:22px;font-size:.86rem;color:var(--muted);text-align:center;font-weight:600;}
+        .signup-link a{color:var(--neon);text-decoration:none;font-weight:800;}
+        .signup-link a:hover{text-shadow:0 0 10px var(--neon-glow);}
+
+        .error-banner{display:none;background:rgba(255,75,75,.1);border:1px solid var(--red);border-radius:12px;padding:12px 16px;color:var(--red);font-size:.88rem;font-weight:700;margin-bottom:16px;text-align:center;}
+        .error-banner.show{display:block;}
+
+        @media(max-width:600px){nav{padding:0 20px;}.nav-links,.nav-cta{display:none;}.login-card{padding:30px 22px;}}
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="home.html" class="nav-logo">Speak<span>ly</span></a>
+    <div class="nav-links">
+        <a href="home.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+        <a href="signup.html">Sign Up Free</a>
+    </div>
+</nav>
+
+<div class="page">
+    <div class="login-card">
+        <button class="card-close-btn" onclick="window.location.href='home.html'" title="Close">&#x2715;</button>
+        <div class="kuku-small">
+            <div class="eye l"></div>
+            <div class="eye r"></div>
+            <div class="beak"></div>
+        </div>
+        <h2 class="login-title">Welcome Back! 👋</h2>
+        <p class="login-sub">Log in to continue your Speakly journey</p>
+
+        <div class="error-banner" id="errorBanner">❌ Invalid email or password. Please try again.</div>
+
+        <button class="social-btn" onclick="googleLogin()">
+            <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" width="18" alt="Google"> Continue with Google
+        </button>
+
+        <div class="divider"><span>OR LOG IN WITH EMAIL</span></div>
+
+        <div class="input-group">
+            <label class="input-label">Email Address</label>
+            <input type="email" class="neon-input" id="loginEmail" placeholder="you@example.com" oninput="validateLoginEmail()" maxlength="30">
+            <div class="input-hint" id="emailHint"></div>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Password</label>
+            <div class="pw-wrap">
+                <input type="password" class="neon-input" id="loginPw" placeholder="Your password" oninput="validateLoginPw()" maxlength="12">
+                <button class="pw-toggle" onclick="togglePw()" id="pwEye">👁</button>
+            </div>
+            <div class="input-hint" id="pwHint"></div>
+        </div>
+
+        <a href="#" class="forgot" onclick="forgotPassword(event)">Forgot password?</a>
+
+        <div class="captcha-box">
+            <div class="captcha-left">
+                <div class="captcha-check" id="captchaCheck" onclick="toggleCaptcha()"></div>
+                <span class="captcha-label">I'm not a robot</span>
+            </div>
+            <div class="captcha-logo">🛡️<br>Speakly<br>Security</div>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="processLogin()">Log In →</button>
+
+        <p class="signup-link">Don't have an account? <a href="signup.html">Sign up for free →</a></p>
+    </div>
+</div>
+
+<script>
+let captchaOk=false;
+const validity={email:false,pw:false,captcha:false};
+
+function validateLoginEmail(){
+    const v=document.getElementById('loginEmail').value.trim();
+    const rx=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const inp=document.getElementById('loginEmail');
+    const hint=document.getElementById('emailHint');
+    if(v&&rx.test(v)&&v.length<=30){
+        inp.classList.remove('invalid');inp.classList.add('valid');
+        hint.textContent='✓ Valid email';hint.className='input-hint hint-ok';validity.email=true;
+    } else if(v){
+        inp.classList.remove('valid');inp.classList.add('invalid');
+        hint.textContent=v.length>30?'Max 30 characters':'Enter a valid email';hint.className='input-hint hint-err';validity.email=false;
+    } else {validity.email=false;}
+    updateBtn();
+}
+
+function validateLoginPw(){
+    const v=document.getElementById('loginPw').value;
+    const inp=document.getElementById('loginPw');
+    const hint=document.getElementById('pwHint');
+    if(v.length>=8){
+        inp.classList.remove('invalid');inp.classList.add('valid');
+        hint.textContent='';validity.pw=true;
+    } else if(v){
+        inp.classList.remove('valid');inp.classList.add('invalid');
+        hint.textContent='Password must be at least 8 characters';hint.className='input-hint hint-err';validity.pw=false;
+    } else {validity.pw=false;}
+    updateBtn();
+}
+
+function toggleCaptcha(){
+    captchaOk=!captchaOk;
+    const c=document.getElementById('captchaCheck');
+    c.className='captcha-check'+(captchaOk?' checked':'');
+    c.innerHTML=captchaOk?'<span style="color:#fff;font-size:14px;font-weight:800;">✓</span>':'';
+    validity.captcha=captchaOk;
+    updateBtn();
+}
+
+function updateBtn(){
+    const ok=Object.values(validity).every(v=>v);
+    document.getElementById('submitBtn').classList.toggle('enabled',ok);
+}
+
+function togglePw(){
+    const inp=document.getElementById('loginPw');
+    inp.type=inp.type==='password'?'text':'password';
+    document.getElementById('pwEye').textContent=inp.type==='password'?'👁':'🙈';
+}
+
+function googleLogin(){
+    showToast('Google login would open OAuth here 🔐');
+}
+
+function forgotPassword(e){
+    e.preventDefault();
+    showToast('Password reset link sent to your email! 📧');
+}
+
+// ── COOKIE HELPER FUNCTIONS ──
+function setCookie(name, value, days) {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+    const consent = localStorage.getItem('speaklyCookiesAccepted');
+    if (consent === 'false') return;
+    document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + expires.toUTCString() + ';path=/;SameSite=Lax';
+}
+
+function getCookie(name) {
+    const nameEQ = name + '=';
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i].trim();
+        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length));
+    }
+    return null;
+}
+
+async function processLogin(){
+    if(!Object.values(validity).every(v=>v)) return;
+
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Logging in...';
+
+    const email = document.getElementById('loginEmail').value.trim();
+    const pw = document.getElementById('loginPw').value;
+
+    try {
+        const response = await fetch('http://localhost:5000/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password: pw })
+        });
+
+        const data = await response.json();
+
+        if(response.ok){
+            localStorage.setItem('speakly_token', data.token);
+            localStorage.setItem('speakly_user', JSON.stringify(data.user));
+            localStorage.setItem('speakly_logged_in', 'true');
+            
+            showToast('Welcome back! 🎉');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1200);
+        } else {
+            btn.textContent = 'Log In →';
+            document.getElementById('errorBanner').classList.add('show');
+        }
+
+    } catch(error){
+        btn.textContent = 'Log In →';
+        showToast('❌ Server se connection nahi hua!');
+    }
+}
+
+function showToast(msg){
+    const t=document.createElement('div');
+    t.textContent=msg;
+    t.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(0,242,254,.12);border:1px solid var(--neon);color:var(--neon);padding:12px 24px;border-radius:12px;font-weight:700;z-index:999;backdrop-filter:blur(8px);';
+    document.body.appendChild(t);
+    setTimeout(()=>{t.style.opacity=0;setTimeout(()=>t.remove(),400);},2500);
+}
+</script>
+</body>
+</html>

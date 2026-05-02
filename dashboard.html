@@ -1,0 +1,2277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>SPEAKLY</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green:#58cc02;--green-dark:#46a302;--green-light:#d7ffb8;
+    --blue:#1cb0f6;--blue-dark:#0a9dd9;--blue-light:#ddf4ff;
+    --red:#ff4b4b;--red-light:#ffd8d8;
+    --yellow:#ffc800;--yellow-light:#fff5cc;
+    --purple:#ce82ff;--purple-light:#f0d9ff;
+    --orange:#ff9600;--orange-light:#ffeccc;
+    --gray:#afafaf;--gray-light:#f7f7f7;--gray-dark:#3c3c3c;
+    --white:#ffffff;--bg:#f0f4f8;
+    --card-shadow:0 4px 0 rgba(0,0,0,.15);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--gray-dark);min-height:100vh;}
+  .screen{display:none;min-height:100vh;}
+  .screen.active{display:flex;flex-direction:column;}
+  
+  /* nav bar try*/
+  .navbar {
+    background-color: #0b1120; /* Dark background jaisa pic mein hai */
+    padding: 15px;
+    height: 85px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Hamburger Icon Style */
+.menu-icon {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.menu-icon span {
+    width: 25px;
+    height: 3px;
+    background-color: #00d4ff; /* Cyan color lines */
+    border-radius: 2px;
+}
+
+/* Dropdown Menu (Shuru mein hidden hoga) */
+.dropdown-content {
+    display: none; 
+    position: absolute;
+    top: 80px;
+    left: 15px;
+    background-color: #16213e;
+    min-width: 200px;
+    border-radius: 8px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+/* Menu links ki styling */
+.dropdown-content a {
+    color: #a0a0a0;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-family: sans-serif;
+}
+
+.dropdown-content a:hover {
+    background-color: #2e3a59;
+    color: #ffffff;
+    padding-left: 25px; /* Hover par thora move hoga jo acha lagta hai */
+}
+
+/* Jab menu open ho to yeh class add hogi */
+.show { display: block !important; }
+
+/* ===== DAILY REWARD MENU ITEM ===== */
+.reward-menu-item {
+  position: relative;
+}
+.reward-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  color: #1a1a2e;
+  font-size: 0.65rem;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 20px;
+  margin-left: 6px;
+  vertical-align: middle;
+  animation: pulse-badge 1.5s infinite;
+}
+@keyframes pulse-badge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* ===== DAILY REWARD MODAL ===== */
+.reward-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+.reward-overlay.active { display: flex; }
+
+.reward-modal {
+  background: linear-gradient(160deg, #1a1a2e, #16213e);
+  border: 2px solid #ffd200;
+  border-radius: 20px;
+  padding: 32px 28px;
+  max-width: 340px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 0 40px rgba(255, 210, 0, 0.25);
+  animation: modal-pop 0.3s ease;
+}
+@keyframes modal-pop {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+.reward-modal-close {
+  position: absolute;
+  top: 12px; right: 16px;
+  background: none; border: none;
+  color: #aaa; font-size: 1.4rem;
+  cursor: pointer;
+}
+.reward-coin-icon {
+  font-size: 4rem;
+  margin-bottom: 10px;
+  display: block;
+}
+.reward-modal h2 {
+  color: #ffd200;
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.6rem;
+  margin: 0 0 6px;
+}
+.reward-modal p {
+  color: #aec6e8;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+.reward-amount {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #ffd200;
+  margin: 10px 0;
+}
+.reward-claim-btn {
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  color: #1a1a2e;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 40px;
+  font-size: 1.1rem;
+  font-weight: 900;
+  cursor: pointer;
+  width: 100%;
+  transition: transform 0.15s;
+}
+.reward-claim-btn:hover { transform: scale(1.04); }
+.reward-claim-btn:disabled {
+  background: #2e3a59;
+  color: #666;
+  cursor: not-allowed;
+  transform: none;
+}
+.reward-timer {
+  color: #f7971e;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 12px;
+}
+.reward-claimed-msg {
+  color: #4ade80;
+  font-size: 0.9rem;
+  margin-top: 8px;
+}
+
+/* ===== STREAK SECTION ===== */
+.streak-section {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border: 2px solid rgba(247,151,30,0.4);
+  border-radius: 16px;
+  padding: 20px;
+  margin: 20px 16px;
+  text-align: center;
+}
+.streak-title {
+  color: #aec6e8;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+.streak-count {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #f7971e;
+  font-family: 'Baloo 2', cursive;
+  line-height: 1;
+}
+.streak-label {
+  color: #f7971e;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+.streak-days-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.streak-day {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 2px solid rgba(255,255,255,0.1);
+  color: #666;
+  background: rgba(255,255,255,0.04);
+}
+.streak-day.done {
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  color: #1a1a2e;
+  border-color: #ffd200;
+}
+.streak-day.today {
+  border-color: #f7971e;
+  color: #f7971e;
+  background: rgba(247,151,30,0.15);
+  box-shadow: 0 0 8px rgba(247,151,30,0.4);
+}
+.streak-broken {
+  color: #f87171;
+  font-size: 0.8rem;
+  margin-top: 8px;
+}
+.coins-display {
+  color: #ffd200;
+  font-size: 0.85rem;
+  margin-top: 10px;
+}
+.coins-display span {
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+  /* ===== STATS PAGE ===== */
+  #stats{background:linear-gradient(160deg,#0d0d1a 0%,#0f1a2e 60%,#0a1628 100%);padding:0;align-items:stretch;overflow-y:auto;}
+  .stats-page-wrap{width:100%;max-width:520px;margin:0 auto;padding:20px 16px 40px;}
+  .stats-top-bar{display:flex;align-items:center;gap:12px;margin-bottom:22px;padding-top:4px;}
+  .stats-back-btn{background:rgba(255,255,255,.08);border:none;color:#fff;width:38px;height:38px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .stats-page-title{font-family:'Baloo 2',cursive;font-size:1.5rem;color:#fff;font-weight:800;}
+
+  /* Summary cards row */
+  .stats-summary-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px;}
+  .s-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 14px 12px;text-align:center;}
+  .s-card-icon{font-size:1.6rem;margin-bottom:6px;}
+  .s-card-val{font-size:1.7rem;font-weight:900;font-family:'Baloo 2',cursive;color:#fff;line-height:1;}
+  .s-card-lbl{font-size:.7rem;color:#8899bb;margin-top:4px;text-transform:uppercase;letter-spacing:.6px;}
+
+  /* Section heading */
+  .stats-sec-title{font-size:.75rem;color:#8899bb;text-transform:uppercase;letter-spacing:.8px;margin:18px 0 10px;font-weight:700;}
+
+  /* Accuracy history */
+  .acc-history-wrap{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 14px 10px;}
+  .acc-bars{display:flex;align-items:flex-end;gap:5px;height:70px;margin-bottom:6px;}
+  .acc-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+  .acc-bar{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height .4s ease;}
+  .acc-bar-lbl{font-size:.6rem;color:#8899bb;}
+  .acc-empty{color:#8899bb;font-size:.8rem;text-align:center;padding:16px 0;}
+
+  /* Language breakdown */
+  .lang-breakdown{display:flex;flex-direction:column;gap:8px;}
+  .lang-row{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 14px;}
+  .lang-row-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .lang-row-name{color:#fff;font-weight:800;font-size:.9rem;}
+  .lang-row-xp{color:#ffd200;font-size:.8rem;font-weight:700;}
+  .lang-prog-bars{display:flex;gap:6px;}
+  .diff-prog{flex:1;}
+  .diff-label{font-size:.6rem;color:#8899bb;margin-bottom:3px;}
+  .diff-bar-bg{background:rgba(255,255,255,.1);border-radius:20px;height:6px;overflow:hidden;}
+  .diff-bar-fill{height:100%;border-radius:20px;transition:width .5s ease;}
+  .easy-fill{background:#58cc02;}
+  .medium-fill{background:#ffc800;}
+  .hard-fill{background:#ff4b4b;}
+
+  /* Leaderboard */
+  .leaderboard-wrap{display:flex;flex-direction:column;gap:6px;}
+  .lb-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 14px;transition:background .2s;}
+  .lb-row.me{background:rgba(255,210,0,.1);border-color:rgba(255,210,0,.35);}
+  .lb-rank{font-size:.85rem;font-weight:900;color:#8899bb;width:22px;text-align:center;}
+  .lb-rank.gold{color:#ffd200;}
+  .lb-rank.silver{color:#c0c0c0;}
+  .lb-rank.bronze{color:#cd7f32;}
+  .lb-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:800;flex-shrink:0;}
+  .lb-name{flex:1;font-size:.88rem;color:#dde4f0;font-weight:700;}
+  .lb-you-badge{font-size:.6rem;background:rgba(255,210,0,.2);color:#ffd200;padding:2px 6px;border-radius:20px;margin-left:4px;}
+  .lb-xp{font-size:.85rem;font-weight:900;color:#ffd200;}
+  .lb-streak{font-size:.75rem;color:#f7971e;margin-left:4px;}
+
+  /* HOME */
+  #home{background:linear-gradient(160deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);align-items:center;justify-content:center;text-align:center;padding:32px 24px;}
+  .logo{font-family:'Baloo 2',cursive;font-size:3rem;color:var(--green);letter-spacing:-1px;margin-bottom:8px;}
+  .logo span{color:var(--yellow);}
+  .tagline{color:#aec6e8;font-size:1.1rem;margin-bottom:48px;}
+  .lang-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%;max-width:440px;margin-bottom:40px;}
+  .lang-card{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-radius:var(--radius);padding:20px 10px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .lang-card:hover{background:rgba(255,255,255,.14);transform:translateY(-3px);border-color:var(--green);}
+  .lang-flag{font-size:2.6rem;}
+  .lang-name{font-size:.85rem;font-weight:800;color:#fff;letter-spacing:.5px;}
+
+  /* CATEGORY */
+  #category{background:linear-gradient(160deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);padding:24px;align-items:center;}
+  .screen-header{display:flex;align-items:center;gap:12px;width:100%;max-width:500px;margin-bottom:28px;}
+  .back-btn{background:var(--white);border:2px solid #e5e5e5;border-radius:12px;width:44px;height:44px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+  .back-btn:hover{border-color:var(--green);color:var(--green);}
+  .screen-title{color:#46a302; font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:700;}
+  .cat-grid{display:grid;grid-template-columns:1fr;gap:14px;width:100%;max-width:500px;}
+  .cat-card{border-radius:var(--radius);padding:20px 22px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:16px;box-shadow:var(--card-shadow);border:none;}
+  .cat-card:hover{transform:translateY(-2px);box-shadow:0 6px 0 rgba(0,0,0,.18);}
+  .cat-card.easy{background:linear-gradient(135deg,#58cc02,#7eeb44);}
+  .cat-card.medium{background:linear-gradient(135deg,#ffc800,#ffdc6b);}
+  .cat-card.hard{background:linear-gradient(135deg,#ff4b4b,#ff7f7f);}
+  .cat-icon{font-size:2.2rem;}
+  .cat-info .cat-label{font-size:1.2rem;font-weight:900;color:white;text-shadow:0 1px 3px rgba(0,0,0,.2);}
+  .cat-info .cat-desc{font-size:.82rem;color:rgba(255,255,255,.85);font-weight:600;margin-top:2px;}
+
+  /* LEVELS */
+  #levels{background:var(--bg);padding:24px;align-items:center;}
+  .levels-wrap{width:100%;max-width:500px;}
+  .level-path{display:flex;flex-direction:column;align-items:center;gap:0;}
+  .level-node{display:flex;flex-direction:column;align-items:center;}
+  .level-connector{width:3px;height:24px;background:#d0d0d0;transform-origin:top;animation:connector-grow .3s ease both;}
+  .level-btn{width:90px;height:90px;border-radius:50%;border:none;cursor:pointer;font-family:'Baloo 2',cursive;font-weight:800;font-size:1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .22s;position:relative;box-shadow:0 6px 0 rgba(0,0,0,.2);}
+  .level-btn.unlocked{color:white;}
+  .level-btn.unlocked:hover{transform:scale(1.07) translateY(-2px);}
+  .level-btn.easy-l{background:var(--green);box-shadow:0 6px 0 var(--green-dark);}
+  .level-btn.medium-l{background:var(--yellow);box-shadow:0 6px 0 #c99a00;color:var(--gray-dark)!important;}
+  .level-btn.hard-l{background:var(--red);box-shadow:0 6px 0 #c43c3c;}
+  .level-emoji{font-size:1.5rem;}
+  .level-label{font-size:.75rem;margin-top:2px;}
+  .level-xp{position:absolute;top:-8px;right:-8px;background:var(--orange);color:white;font-size:.65rem;font-weight:800;padding:2px 6px;border-radius:20px;white-space:nowrap;}
+  .level-info{margin-top:8px;text-align:center;}
+  .level-info .li-title{font-weight:800;font-size:.85rem;}
+  .level-info .li-types{font-size:.72rem;color:var(--gray);margin-top:2px;}
+
+  /* LOCKED LEVELS */
+  .level-btn.locked{
+    background:linear-gradient(145deg,#c8c8c8,#a8a8a8);
+    box-shadow:0 6px 0 #888;
+    color:#fff;
+    cursor:not-allowed;
+    position:relative;
+    overflow:hidden;
+  }
+  .level-btn.locked::before{
+    content:'';
+    position:absolute;inset:0;
+    background:repeating-linear-gradient(45deg,transparent,transparent 8px,rgba(0,0,0,.05) 8px,rgba(0,0,0,.05) 16px);
+  }
+  .level-btn.locked:hover{transform:none;animation:locked-shake .4s ease;}
+  .lock-icon{font-size:1.6rem;display:block;}
+  .level-info.locked-info .li-title{color:#999;}
+  .level-info.locked-info .li-types{color:#bbb;}
+
+  /* UNLOCK ANIMATION for Level 1 */
+  @keyframes unlock-pop{
+    0%{transform:scale(0.5);opacity:0;}
+    60%{transform:scale(1.15);}
+    80%{transform:scale(0.95);}
+    100%{transform:scale(1);opacity:1;}
+  }
+  @keyframes unlock-glow{
+    0%,100%{box-shadow:0 6px 0 var(--green-dark);}
+    50%{box-shadow:0 6px 0 var(--green-dark),0 0 20px 6px rgba(88,204,2,.5),0 0 40px 12px rgba(88,204,2,.2);}
+  }
+  @keyframes locked-shake{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-6px)rotate(-2deg);}
+    40%{transform:translateX(6px)rotate(2deg);}
+    60%{transform:translateX(-4px);}
+    80%{transform:translateX(4px);}
+  }
+  @keyframes node-slide-in{
+    from{opacity:0;transform:translateY(30px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  @keyframes connector-grow{
+    from{transform:scaleY(0);}
+    to{transform:scaleY(1);}
+  }
+  @keyframes stars-burst{
+    0%{opacity:1;transform:scale(0) rotate(0deg);}
+    60%{opacity:1;transform:scale(1.5) rotate(180deg);}
+    100%{opacity:0;transform:scale(2) rotate(360deg);}
+  }
+  @keyframes badge-bounce{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-4px);}
+  }
+  .level-node{animation:node-slide-in .4s ease both;}
+  .level-connector{animation:connector-grow .3s ease both;}
+
+  /* Unlock glow on level 1 */
+  .level-btn.level1-unlocked{
+    animation:unlock-pop .6s ease forwards, unlock-glow 2s ease 0.6s infinite;
+  }
+
+  /* Stars particle burst */
+  .star-particle{
+    position:fixed;pointer-events:none;font-size:1.2rem;
+    animation:stars-burst .8s ease forwards;
+    z-index:9999;
+  }
+
+  /* Locked tooltip */
+  .lock-tooltip{
+    position:absolute;bottom:110%;left:50%;transform:translateX(-50%);
+    background:rgba(0,0,0,.8);color:white;font-size:.7rem;font-weight:700;
+    padding:5px 10px;border-radius:8px;white-space:nowrap;pointer-events:none;
+    opacity:0;transition:opacity .2s;
+  }
+  .lock-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:rgba(0,0,0,.8);}
+  .level-btn.locked:hover .lock-tooltip{opacity:1;}
+
+  .xp-badge-anim{animation:badge-bounce 1s ease infinite;}
+
+  /* QUIZ */
+  #quiz{background:var(--bg);padding:0;align-items:stretch;}
+  .quiz-header{background:white;padding:16px 20px 12px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+  .progress-bar-wrap{flex:1;height:16px;background:#e5e5e5;border-radius:20px;overflow:hidden;}
+  .progress-bar{height:100%;background:var(--green);border-radius:20px;transition:width .4s ease;}
+  .quiz-hearts{display:flex;gap:4px;font-size:1.1rem;}
+  .quiz-xp-badge{background:var(--yellow);color:var(--gray-dark);font-size:.78rem;font-weight:800;padding:4px 10px;border-radius:20px;}
+  .quiz-body{flex:1;padding:24px 20px;display:flex;flex-direction:column;gap:20px;max-width:560px;margin:0 auto;width:100%;}
+  .q-type-badge{align-self:flex-start;padding:5px 14px;border-radius:20px;font-size:.78rem;font-weight:800;letter-spacing:.5px;}
+  .q-instruction{font-size:1rem;font-weight:700;color:#555;}
+  .q-text{font-size:1.25rem;font-weight:800;line-height:1.4;}
+
+  /* MCQ */
+  .mcq-options{display:flex;flex-direction:column;gap:10px;}
+  .mcq-btn{background:white;border:2px solid #e5e5e5;border-radius:14px;padding:14px 18px;text-align:left;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:12px;box-shadow:0 2px 0 #e0e0e0;}
+  .mcq-btn:hover:not(.disabled){border-color:var(--blue);background:var(--blue-light);transform:translateY(-1px);}
+  .mcq-btn.selected{border-color:var(--blue);background:var(--blue-light);}
+  .mcq-btn.correct{border-color:var(--green);background:var(--green-light);}
+  .mcq-btn.wrong{border-color:var(--red);background:var(--red-light);}
+  .mcq-btn.disabled{cursor:default;}
+  .option-circle{width:32px;height:32px;border-radius:50%;border:2px solid #ccc;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;flex-shrink:0;}
+  .mcq-btn.selected .option-circle,.mcq-btn.correct .option-circle{border-color:var(--green);color:var(--green);}
+  .mcq-btn.wrong .option-circle{border-color:var(--red);color:var(--red);}
+
+  /* MATCHING */
+  .match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .match-col{display:flex;flex-direction:column;gap:8px;}
+  .match-item{background:white;border:2px solid #e5e5e5;border-radius:12px;padding:12px 14px;font-weight:700;font-size:.9rem;text-align:center;cursor:pointer;transition:all .18s;box-shadow:0 2px 0 #e0e0e0;}
+  .match-item:hover:not(.disabled):not(.matched){border-color:var(--purple);background:var(--purple-light);}
+  .match-item.selected{border-color:var(--blue);background:var(--blue-light);}
+  .match-item.matched{border-color:var(--green);background:var(--green-light);cursor:default;}
+  .match-item.wrong-flash{border-color:var(--red);background:var(--red-light);animation:shake .3s;}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+  /* FILL IN BLANK */
+  .fib-sentence{font-size:1.15rem;font-weight:700;line-height:2.6;}
+  .fib-input{border:none;border-bottom:3px solid var(--blue);background:transparent;font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:700;width:130px;text-align:center;padding:4px 8px;outline:none;color:var(--gray-dark);}
+  .fib-input.correct{border-color:var(--green);color:var(--green);}
+  .fib-input.wrong{border-color:var(--red);color:var(--red);}
+
+  /* QA */
+  .qa-textarea{width:100%;min-height:100px;border:2px solid #e5e5e5;border-radius:14px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:600;padding:14px;outline:none;resize:vertical;transition:border .2s;}
+  .qa-textarea:focus{border-color:var(--blue);}
+  .qa-textarea.correct{border-color:var(--green);background:var(--green-light);}
+
+  /* FEEDBACK */
+  .feedback-bar{position:fixed;bottom:0;left:0;right:0;padding:16px 20px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:100;}
+  .feedback-bar.show{transform:translateY(0);}
+  .feedback-bar.correct-fb{background:linear-gradient(135deg,#d7ffb8,#efffdc);border-top:3px solid var(--green);}
+  .feedback-bar.wrong-fb{background:linear-gradient(135deg,#ffd8d8,#fff0f0);border-top:3px solid var(--red);}
+  .fb-left .fb-icon{font-size:1.8rem;}
+  .fb-left .fb-title{font-size:1rem;font-weight:900;}
+  .feedback-bar.correct-fb .fb-title{color:var(--green-dark);}
+  .feedback-bar.wrong-fb .fb-title{color:var(--red);}
+  .fb-left .fb-answer{font-size:.82rem;color:#555;font-weight:600;margin-top:2px;}
+
+  /* FB right side - two buttons on wrong */
+  .fb-right{display:flex;flex-direction:column;gap:8px;align-items:stretch;min-width:120px;}
+  .continue-btn{background:var(--green);color:white;border:none;border-radius:14px;padding:14px 26px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;box-shadow:0 4px 0 var(--green-dark);transition:all .18s;white-space:nowrap;}
+  .continue-btn:hover{transform:translateY(-2px);}
+  .retry-btn{background:var(--orange);color:white;border:none;border-radius:14px;padding:12px 18px;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;box-shadow:0 4px 0 #c07000;transition:all .18s;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:6px;}
+  .retry-btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 #c07000;}
+  .skip-btn{background:transparent;color:#999;border:2px solid #ddd;border-radius:14px;padding:10px 18px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .18s;white-space:nowrap;}
+  .skip-btn:hover{border-color:#bbb;color:#777;}
+
+  .check-btn-wrap{margin-top:auto;padding-bottom:100px;}
+  .check-btn{width:100%;background:#e5e5e5;color:#aaa;border:none;border-radius:14px;padding:16px;font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:800;cursor:not-allowed;transition:all .2s;box-shadow:0 4px 0 #ccc;}
+  .check-btn.active{background:var(--green);color:white;cursor:pointer;box-shadow:0 4px 0 var(--green-dark);}
+  .check-btn.active:hover{transform:translateY(-2px);}
+
+  /* CORRECT ANSWER REVEAL on wrong */
+  .correct-reveal{
+    margin-top:10px;padding:10px 14px;background:rgba(88,204,2,.12);
+    border:2px solid var(--green);border-radius:12px;
+    font-size:.85rem;font-weight:700;color:var(--green-dark);
+    animation:reveal-pop .4s cubic-bezier(.34,1.56,.64,1) forwards;
+    display:flex;align-items:center;gap:6px;
+  }
+  @keyframes reveal-pop{
+    0%{opacity:0;transform:scale(.8) translateY(6px);}
+    100%{opacity:1;transform:scale(1) translateY(0);}
+  }
+
+  /* WRONG shake on quiz body */
+  @keyframes wrong-body-shake{
+    0%,100%{transform:translateX(0);}
+    15%{transform:translateX(-8px);}
+    30%{transform:translateX(8px);}
+    45%{transform:translateX(-6px);}
+    60%{transform:translateX(6px);}
+    75%{transform:translateX(-3px);}
+    90%{transform:translateX(3px);}
+  }
+  .wrong-shake{animation:wrong-body-shake .5s ease;}
+
+  /* CORRECT confetti burst */
+  .confetti-piece{
+    position:fixed;pointer-events:none;width:8px;height:8px;border-radius:2px;
+    animation:confetti-fall 1.2s ease forwards;z-index:9999;
+  }
+  @keyframes confetti-fall{
+    0%{opacity:1;transform:translateY(0) rotate(0deg) scale(1);}
+    100%{opacity:0;transform:translateY(180px) rotate(720deg) scale(.4);}
+  }
+
+  /* XP pop animation */
+  .xp-pop{
+    position:fixed;font-family:'Baloo 2',cursive;font-weight:800;font-size:1.4rem;
+    color:var(--yellow);text-shadow:0 2px 8px rgba(0,0,0,.3);
+    pointer-events:none;z-index:9999;
+    animation:xp-float 1.2s ease forwards;
+  }
+  @keyframes xp-float{
+    0%{opacity:1;transform:translateY(0) scale(1);}
+    40%{opacity:1;transform:translateY(-30px) scale(1.2);}
+    100%{opacity:0;transform:translateY(-80px) scale(.8);}
+  }
+
+  /* Heart loss animation */
+  @keyframes heart-break{
+    0%{transform:scale(1);}
+    30%{transform:scale(1.4);}
+    60%{transform:scale(.8);}
+    100%{transform:scale(1);}
+  }
+  .heart-breaking{animation:heart-break .4s ease;}
+
+  /* Progress bar pulse on correct */
+  @keyframes bar-pulse{
+    0%,100%{filter:brightness(1);}
+    50%{filter:brightness(1.3);}
+  }
+  .progress-bar.pulse{animation:bar-pulse .5s ease;}
+
+  /* RESULT */
+  #result{background:var(--bg);align-items:center;justify-content:center;padding:32px 24px;text-align:center;}
+  .result-emoji{font-size:5rem;margin-bottom:16px;animation:result-bounce .6s cubic-bezier(.34,1.56,.64,1) .1s both;}
+  @keyframes result-bounce{0%{transform:scale(0) rotate(-20deg);opacity:0;}100%{transform:scale(1) rotate(0);opacity:1;}}
+  .result-title{font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800;margin-bottom:8px;animation:fade-up .4s ease .3s both;}
+  .result-subtitle{color:#666;font-size:1rem;margin-bottom:32px;animation:fade-up .4s ease .4s both;}
+  @keyframes fade-up{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;max-width:400px;margin-bottom:32px;}
+  .stat-card{background:white;border-radius:var(--radius);padding:16px 10px;box-shadow:var(--card-shadow);animation:fade-up .4s ease both;}
+  .stat-card:nth-child(1){animation-delay:.5s;}
+  .stat-card:nth-child(2){animation-delay:.6s;}
+  .stat-card:nth-child(3){animation-delay:.7s;}
+  .stat-icon{font-size:1.6rem;margin-bottom:4px;}
+  .stat-val{font-size:1.4rem;font-weight:900;}
+  .stat-lbl{font-size:.72rem;color:var(--gray);font-weight:700;margin-top:2px;}
+  .btn-group{display:flex;flex-direction:column;gap:10px;width:100%;max-width:360px;animation:fade-up .4s ease .8s both;}
+  .btn-primary{background:var(--green);color:white;border:none;border-radius:14px;padding:16px;font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:800;cursor:pointer;box-shadow:0 4px 0 var(--green-dark);transition:all .2s;}
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-secondary{background:white;color:var(--blue);border:2px solid var(--blue);border-radius:14px;padding:14px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;transition:all .2s;}
+  .btn-secondary:hover{background:var(--blue-light);}
+  .streak-banner{background:var(--orange);color:white;padding:10px 20px;border-radius:12px;font-weight:800;font-size:.9rem;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+
+  /* Quiz body slide-in */
+  @keyframes quiz-body-in{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+  .quiz-body-anim{animation:quiz-body-in .3s ease both;}
+
+  /* Newly unlocked level button animation */
+  @keyframes newly-unlock{
+    0%  {transform:scale(0.4) rotate(-15deg);opacity:0;filter:brightness(2);}
+    50% {transform:scale(1.2) rotate(5deg); opacity:1;filter:brightness(1.4);}
+    70% {transform:scale(0.92)rotate(-2deg);}
+    85% {transform:scale(1.06);}
+    100%{transform:scale(1)  rotate(0deg); filter:brightness(1);}
+  }
+  @keyframes unlock-glow-new{
+    0%,100%{box-shadow:0 6px 0 var(--green-dark);}
+    50%    {box-shadow:0 6px 0 var(--green-dark),0 0 22px 8px rgba(88,204,2,.55),0 0 44px 16px rgba(88,204,2,.2);}
+  }
+  .level-newly-unlocked{
+    animation:newly-unlock .7s cubic-bezier(.34,1.56,.64,1) .3s both,
+              unlock-glow-new 2s ease 1s infinite;
+  }
+  /* Connector glows when next level just unlocked */
+  @keyframes connector-unlock-glow{
+    0%  {background:#d0d0d0;}
+    40% {background:var(--green);box-shadow:0 0 8px 2px rgba(88,204,2,.6);}
+    100%{background:var(--green);}
+  }
+  .connector-unlock{animation:connector-unlock-glow .8s ease .2s both;}
+
+  #chatbot-launcher {
+    position: fixed; 
+    bottom: 30px; 
+    right: 30px;
+    width: 65px; 
+    height: 65px;
+    background: linear-gradient(135deg, #1cb0f6, #0a9dd9);
+    border-radius: 50%; 
+    display: flex !important; /* Force display */
+    align-items: center; 
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(28, 176, 246, 0.4); 
+    z-index: 99999; /* Isse sabse upar rakhega */
+    cursor: pointer;
+    transition: 0.3s; 
+    border: 2px solid rgba(255,255,255,0.2);
+}
+
+#chat-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(12, 16, 33, 0.6); backdrop-filter: blur(8px);
+    display: none; z-index: 9998; transition: 0.3s;
+}
+
+#chat-window {
+    position: fixed; bottom: 100px; right: 30px;
+    width: 360px; height: 500px;
+    background: white; border-radius: 20px;
+    display: none; flex-direction: column;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+    z-index: 99999; border: 1px solid #e5e5e5; overflow: hidden;
+}
+
+.chat-header {
+    background: #1cb0f6; padding: 15px; display: flex; 
+    justify-content: space-between; align-items: center;
+}
+
+.close-chat {
+    background: none; border: none; color: white;
+    font-size: 28px; cursor: pointer; line-height: 1;
+}
+
+.bot-msg { background: #f0f4f8; color: #3c3c3c; align-self: flex-start; border-bottom-left-radius: 4px; }
+.user-msg { background: #1cb0f6; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+
+/* Typing animation placeholder */
+.typing-dots { font-style: italic; color: #888; font-size: 0.8rem; }
+
+
+.bot-avatar { width: 40px; height: 40px; background: white; border-radius: 50%; padding: 5px; }
+.online-status {
+    position: absolute; bottom: 2px; right: 2px;
+    width: 12px; height: 12px; background: #58cc02;
+    border: 2px solid #1cb0f6; border-radius: 50%;
+}
+
+.message {
+    padding: 12px 16px; border-radius: 18px; font-size: 0.95rem;
+    line-height: 1.5; margin-bottom: 10px; max-width: 85%;
+}
+
+
+.chat-footer { padding: 15px; display: flex; gap: 10px; background: white; }
+#user-input {
+    flex: 1; border: 1px solid #e5e5e5; padding: 12px;
+    border-radius: 12px; outline: none; font-family: inherit;
+}
+#send-btn { background: #1cb0f6; color: white; border: none; width: 45px; border-radius: 12px; cursor: pointer; }
+
+</style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-left">
+        <div class="menu-icon" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="logo">SPEAK<span>LY</span>
+        </div>
+    </div>
+
+    <div id="dropdownMenu" class="dropdown-content">
+        <a href="dashboard.html">🏠 Dashboard</a>
+        <a href="home.html">🌐 Home</a>
+        <a href="about.html">💡 About</a>
+        <a href="faq.html">❓ FAQ</a>
+        <a href="#" class="reward-menu-item" onclick="openRewardModal(); return false;">
+          🎁 Daily Reward <span class="reward-badge" id="rewardBadge">CLAIM</span>
+        </a>
+        <a href="#" onclick="openStats(); return false;">📊 My Statistics</a>
+        <a href="logout.php" class="logout">🚪 Log Out</a>
+    </div>
+</nav>
+
+<!-- ===== DAILY REWARD MODAL ===== -->
+<div class="reward-overlay" id="rewardOverlay">
+  <div class="reward-modal">
+    <button class="reward-modal-close" onclick="closeRewardModal()">&#x2715;</button>
+    <span class="reward-coin-icon">&#x1F381;</span>
+    <h2>Daily Reward</h2>
+    <p>Har roz login karo aur apna reward claim karo!</p>
+    <div style="background:rgba(247,151,30,0.1);border:1px solid rgba(247,151,30,0.3);border-radius:10px;padding:10px 0;margin-bottom:16px;">
+      <div style="color:#f7971e;font-size:0.8rem;letter-spacing:1px;">&#x1F525; CURRENT STREAK</div>
+      <div style="color:#ffd200;font-size:1.8rem;font-weight:900;" id="modalStreakCount">0</div>
+      <div style="color:#aec6e8;font-size:0.75rem;" id="modalStreakLabel">Days</div>
+    </div>
+    <div class="reward-amount" id="rewardAmount">+50 &#x1FA99;</div>
+    <button class="reward-claim-btn" id="claimBtn" onclick="claimReward()">Claim Reward!</button>
+    <div class="reward-timer" id="rewardTimer"></div>
+    <div class="reward-claimed-msg" id="claimedMsg"></div>
+  </div>
+</div>
+
+<!-- ===== STREAK SECTION ===== -->
+<div class="streak-section" id="streakSection">
+  <div class="streak-title">Your Learning Streak</div>
+  <div class="streak-count" id="streakCount">0</div>
+  <div class="streak-label">&#x1F525; Days in a row</div>
+  <div class="streak-days-row" id="streakDaysRow"></div>
+  <div class="streak-broken" id="streakBrokenMsg"></div>
+  <div class="coins-display">&#x1F4B0; Total Coins: <span id="totalCoins">0</span></div>
+</div>
+<!-- STATS PAGE -->
+<div id="stats" class="screen">
+  <div class="stats-page-wrap">
+    <div class="stats-top-bar">
+      <button class="stats-back-btn" onclick="goTo('home')">&#8592;</button>
+      <div class="stats-page-title">&#x1F4CA; My Statistics</div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="stats-summary-row">
+      <div class="s-card">
+        <div class="s-card-icon">&#11088;</div>
+        <div class="s-card-val" id="st-total-xp">0</div>
+        <div class="s-card-lbl">Total XP</div>
+      </div>
+      <div class="s-card">
+        <div class="s-card-icon">&#x1F4DA;</div>
+        <div class="s-card-val" id="st-lessons">0</div>
+        <div class="s-card-lbl">Lessons Done</div>
+      </div>
+      <div class="s-card">
+        <div class="s-card-icon">&#x1F3AF;</div>
+        <div class="s-card-val" id="st-avg-acc">0%</div>
+        <div class="s-card-lbl">Avg Accuracy</div>
+      </div>
+      <div class="s-card">
+        <div class="s-card-icon">&#x1F525;</div>
+        <div class="s-card-val" id="st-streak">0</div>
+        <div class="s-card-lbl">Best Streak</div>
+      </div>
+    </div>
+
+    <!-- Accuracy History Chart -->
+    <div class="stats-sec-title">&#x1F4C8; Accuracy History (last 10 sessions)</div>
+    <div class="acc-history-wrap">
+      <div class="acc-bars" id="accBarsWrap">
+        <div class="acc-empty" style="width:100%">Lessons have not completed yet</div>
+      </div>
+    </div>
+
+    <!-- Language Breakdown -->
+    <div class="stats-sec-title">&#x1F30D; Language Progress</div>
+    <div class="lang-breakdown" id="langBreakdown"></div>
+
+    <!-- Leaderboard -->
+    <div class="stats-sec-title">&#x1F3C6; Weekly Leaderboard</div>
+    <div class="leaderboard-wrap" id="leaderboardWrap"></div>
+
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+  <div class="logo">SPEAK<span>LY</span></div>
+  <div class="tagline">Learn languages the fun way 🎮</div>
+  <div class="streak-banner">🔥 Choose your language to begin!</div>
+  <div class="lang-grid">
+    <div class="lang-card" onclick="selectLanguage('English')"><div class="lang-flag">🇬🇧</div><div class="lang-name">English</div></div>
+    <div class="lang-card" onclick="selectLanguage('Urdu')"><div class="lang-flag">🇵🇰</div><div class="lang-name">Urdu</div></div>
+    <div class="lang-card" onclick="selectLanguage('Spanish')"><div class="lang-flag">🇪🇸</div><div class="lang-name">Spanish</div></div>
+  </div>
+</div>
+
+<!-- CATEGORY -->
+<div id="category" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" onclick="goTo('home')">←</button>
+    <div class="screen-title" id="cat-title">Choose Difficulty</div>
+  </div>
+  <div class="cat-grid">
+    <button class="cat-card easy" onclick="selectCategory('easy')"><div class="cat-icon">🌱</div><div class="cat-info"><div class="cat-label">Easy</div><div class="cat-desc">Beginner level • 5 stages</div></div></button>
+    <button class="cat-card medium" onclick="selectCategory('medium')"><div class="cat-icon">🔥</div><div class="cat-info"><div class="cat-label">Medium</div><div class="cat-desc">Intermediate • 5 stages</div></div></button>
+    <button class="cat-card hard" onclick="selectCategory('hard')"><div class="cat-icon">💎</div><div class="cat-info"><div class="cat-label">Hard</div><div class="cat-desc">Advanced • 5 stages</div></div></button>
+  </div>
+</div>
+
+<!-- LEVELS -->
+<div id="levels" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" onclick="goTo('category')">←</button>
+    <div class="screen-title" id="levels-title">Select Level</div>
+  </div>
+  <div class="levels-wrap"><div class="level-path" id="level-path"></div></div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <button class="back-btn" onclick="goTo('levels')" style="font-size:.9rem;width:38px;height:38px;">✕</button>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+    <div class="quiz-hearts" id="quiz-hearts">❤️❤️❤️</div>
+    <div class="quiz-xp-badge" id="xp-badge">0 XP</div>
+  </div>
+  <div class="quiz-body" id="quiz-body"></div>
+  <div class="feedback-bar" id="feedback-bar">
+    <div class="fb-left">
+      <div class="fb-icon" id="fb-icon"></div>
+      <div class="fb-title" id="fb-title"></div>
+      <div class="fb-answer" id="fb-answer"></div>
+    </div>
+    <div class="fb-right" id="fb-right">
+      <button class="continue-btn" id="continue-btn" onclick="nextQuestion()">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="screen">
+  <div class="result-emoji" id="result-emoji">🏆</div>
+  <div class="result-title" id="result-title">Level Complete!</div>
+  <div class="result-subtitle" id="result-subtitle"></div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-val" id="r-xp">0</div><div class="stat-lbl">XP EARNED</div></div>
+    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-val" id="r-correct">0</div><div class="stat-lbl">CORRECT</div></div>
+    <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-val" id="r-acc">0%</div><div class="stat-lbl">ACCURACY</div></div>
+  </div>
+  <div class="btn-group">
+    <button class="btn-primary" id="result-next-btn" onclick="goToNextLevel()">Next Level 🚀</button>
+    <button class="btn-secondary" onclick="goBackToLevels()">View Levels</button>
+    <button class="btn-secondary" onclick="goTo('home')">🏠 Home</button>
+  </div>
+</div>
+
+<div id="chat-overlay" onclick="toggleChat()"></div>
+
+<div id="chatbot-launcher" onclick="toggleChat()">
+    <img src="https://cdn-icons-png.flaticon.com/512/8943/8943377.png" width="35" alt="AI">
+</div>
+
+<div id="chat-window">
+    <div class="chat-header">
+        <div class="header-info">
+            <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" class="bot-avatar">
+            <div>
+                <h4 style="margin:0; font-size:15px; color:white;">Speakly AI Assistant</h4>
+                <p style="margin:0; font-size:11px; color:rgba(255,255,255,0.8);">Urdu & English Online</p>
+            </div>
+        </div>
+        <button class="close-chat" onclick="toggleChat()">&times;</button>
+    </div>
+    <div class="chat-body" id="chat-body">
+        <div class="message bot-msg">Assalam-o-Alaikum! Main Speakly AI hoon. Main aapki kaise madad kar sakta hoon?</div>
+    </div>
+    <div class="chat-footer">
+        <input type="text" id="user-input" placeholder="Kuch poochiye..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()" id="send-btn"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<script>
+const QUESTION_BANK = {
+  English:{
+    easy:{
+      1:{xp:10,types:['mcq','fib'],questions:[
+        {type:'mcq',instruction:'Choose the correct meaning:',question:'What does "Happy" mean?',options:['Sad','Angry','Joyful','Tired'],answer:2},
+        {type:'fib',instruction:'Fill in the blank:',question:'The sky is _____.', answer:'blue',hint:'color of sky'},
+        {type:'mcq',instruction:'Choose the correct word:',question:'Which word means "big"?',options:['Small','Tiny','Large','Thin'],answer:2},
+        {type:'fib',instruction:'Complete the word:',question:'A cat says _____',answer:'meow',hint:'sound a cat makes'},
+        {type:'mcq',instruction:'Pick the correct answer:',question:'How many days in a week?',options:['5','6','7','8'],answer:2}
+      ]},
+      2:{xp:15,types:['mcq','match'],questions:[
+        {type:'match',instruction:'Match the words to their meanings:',pairs:[['Dog','Animal'],['Apple','Fruit'],['Red','Color'],['Run','Action']]},
+        {type:'mcq',instruction:'Choose correctly:',question:'Which is a fruit?',options:['Carrot','Mango','Potato','Onion'],answer:1},
+        {type:'mcq',instruction:'Select the right word:',question:'Opposite of "hot" is:',options:['Warm','Cool','Cold','Nice'],answer:2},
+        {type:'fib',instruction:'Fill in:',question:'I ___ to school every day.',answer:'go',hint:'movement verb'},
+        {type:'mcq',instruction:'Choose:',question:'"Book" belongs to which category?',options:['Food','Animal','Object','Plant'],answer:2}
+      ]},
+      3:{xp:20,types:['fib','qa'],questions:[
+        {type:'qa',instruction:'Answer in 1-2 sentences:',question:'What is your favorite color and why?',sampleAnswer:'My favorite color is blue because it reminds me of the sky and sea.'},
+        {type:'fib',instruction:'Fill in the blank:',question:'Birds can _____.', answer:'fly',hint:'what birds do in sky'},
+        {type:'mcq',instruction:'Choose the correct sentence:',question:'Which sentence is correct?',options:['She go to market','She goes to market','She going to market','She gone to market'],answer:1},
+        {type:'fib',instruction:'Complete:',question:'Water is _____ at 0°C.',answer:'frozen',hint:'state of water'},
+        {type:'qa',instruction:'Write a sentence using the word:',question:'Use the word "beautiful" in a sentence.',sampleAnswer:'The flowers in the garden are beautiful.'}
+      ]},
+      4:{xp:25,types:['mcq','match','fib'],questions:[
+        {type:'match',instruction:'Match opposites:',pairs:[['Big','Small'],['Hot','Cold'],['Day','Night'],['Happy','Sad']]},
+        {type:'mcq',instruction:'Choose correct plural:',question:'Plural of "child" is:',options:['Childs','Children','Childes','Childrens'],answer:1},
+        {type:'fib',instruction:'Fill in:',question:'The _____ shines at night.',answer:'moon',hint:'celestial body at night'},
+        {type:'mcq',instruction:'Select:',question:'Past tense of "eat" is:',options:['Eaten','Eats','Ate','Eating'],answer:2},
+        {type:'fib',instruction:'Complete:',question:'We use _____ to write.',answer:'pen',hint:'writing instrument'}
+      ]},
+      5:{xp:35,types:['mcq','match','fib','qa'],questions:[
+        {type:'mcq',instruction:'Choose the best word:',question:'The teacher explained the lesson _____.', options:['Badly','Clearly','Ugly','Rudely'],answer:1},
+        {type:'match',instruction:'Match animals to sounds:',pairs:[['Dog','Bark'],['Cat','Meow'],['Cow','Moo'],['Duck','Quack']]},
+        {type:'fib',instruction:'Fill in:',question:'The capital of England is _____.', answer:'London',hint:'major city in UK'},
+        {type:'qa',instruction:'Describe in 2-3 sentences:',question:'Describe what you see outside your window.',sampleAnswer:'I can see trees and buildings outside my window. The sky is bright and clear today.'},
+        {type:'mcq',instruction:'Choose correct form:',question:'"She ___ a doctor" – fill in:',options:['am','is','are','be'],answer:1}
+      ]}
+    },
+    medium:{
+      1:{xp:20,types:['mcq','fib'],questions:[
+        {type:'mcq',instruction:'Choose the synonym:',question:'Synonym of "Brave" is:',options:['Coward','Fearful','Courageous','Weak'],answer:2},
+        {type:'fib',instruction:'Complete the idiom:',question:'Actions speak louder than _____.', answer:'words',hint:'communication noun'},
+        {type:'mcq',instruction:'Choose the correct form:',question:'"Neither of them ___ ready."',options:['are','is','were','been'],answer:1},
+        {type:'fib',instruction:'Fill in:',question:'The _____ of a circle is πr².',answer:'area',hint:'geometric measurement'},
+        {type:'mcq',instruction:'Select:',question:'Which word is a conjunction?',options:['Quickly','Beautiful','Although','Jumped'],answer:2}
+      ]},
+      2:{xp:25,types:['match','fib'],questions:[
+        {type:'match',instruction:'Match literary terms:',pairs:[['Metaphor','Hidden comparison'],['Simile','Using like/as'],['Alliteration','Repeating sounds'],['Hyperbole','Exaggeration']]},
+        {type:'fib',instruction:'Complete:',question:'She was ___ tired that she fell asleep instantly.',answer:'so',hint:'degree adverb'},
+        {type:'mcq',instruction:'Choose:',question:'Which is a compound sentence?',options:['She runs fast.','He sings, and she dances.','Running is fun.','The tall boy.'],answer:1},
+        {type:'fib',instruction:'Fill in:',question:'The passive voice of "He wrote a letter" is "A letter was _____ by him."',answer:'written',hint:'past participle of write'},
+        {type:'mcq',instruction:'Select correct answer:',question:'Antonym of "Transparent" is:',options:['Clear','Visible','Opaque','Shiny'],answer:2}
+      ]},
+      3:{xp:30,types:['mcq','qa'],questions:[
+        {type:'qa',instruction:'Write 2-3 sentences:',question:'Explain the importance of reading books.',sampleAnswer:'Reading books improves vocabulary and knowledge. Books help us understand different cultures and ideas. Regular reading also enhances critical thinking skills.'},
+        {type:'mcq',instruction:'Choose the correct tense:',question:'"By tomorrow, she ___ the project."',options:['complete','completed','will have completed','was completing'],answer:2},
+        {type:'mcq',instruction:'Select:',question:'Which sentence uses the subjunctive mood?',options:['He runs every day.','I wish he were here.','She is coming.','They played well.'],answer:1},
+        {type:'fib',instruction:'Complete:',question:'The _____ War ended in 1945.',answer:'Second World',hint:'WWII'},
+        {type:'qa',instruction:'Answer briefly:',question:'What is the difference between a simile and a metaphor? Give an example.',sampleAnswer:'A simile compares using "like" or "as" (e.g., "brave as a lion"), while a metaphor makes a direct comparison (e.g., "He is a lion in battle").'}
+      ]},
+      4:{xp:35,types:['match','mcq','fib'],questions:[
+        {type:'match',instruction:'Match words to their origins:',pairs:[['Cafe','French'],['Piano','Italian'],['Kindergarten','German'],['Shampoo','Hindi']]},
+        {type:'mcq',instruction:'Choose:',question:'Which punctuation ends an exclamatory sentence?',options:['.','?','!',';'],answer:2},
+        {type:'fib',instruction:'Fill in:',question:'_____ is the study of language.',answer:'Linguistics',hint:'academic field'},
+        {type:'mcq',instruction:'Select the correct word:',question:'"Their/There/They\'re going to the park."',options:['Their','There',"They're",'All correct'],answer:2},
+        {type:'fib',instruction:'Complete the proverb:',question:'Every cloud has a silver _____.', answer:'lining',hint:'inside clouds'}
+      ]},
+      5:{xp:50,types:['mcq','match','fib','qa'],questions:[
+        {type:'mcq',instruction:'Choose correct:',question:'Which is an oxymoron?',options:['Blue sky','Deafening silence','Happy child','Running water'],answer:1},
+        {type:'match',instruction:'Match rhetorical devices:',pairs:[['Anaphora','Repetition at start'],['Irony','Opposite meaning'],['Personification','Human qualities to objects'],['Onomatopoeia','Words that sound like meaning']]},
+        {type:'fib',instruction:'Fill in:',question:'A word that imitates a sound is called _____.', answer:'onomatopoeia',hint:'literary device'},
+        {type:'qa',instruction:'Write a short paragraph:',question:'Describe a memorable experience in your life (3-4 sentences).',sampleAnswer:'I remember visiting the mountains with my family. The air was crisp and the scenery was breathtaking. We hiked through pine forests and reached a beautiful lake.'},
+        {type:'mcq',instruction:'Choose:',question:'Which sentence contains a dangling modifier?',options:['Walking to school, I saw a cat.','Walking to school, the rain started.','She walked quickly to school.','The cat crossed the road.'],answer:1}
+      ]}
+    },
+    hard:{
+      1:{xp:30,types:['mcq','fib'],questions:[
+        {type:'mcq',instruction:'Choose the correct answer:',question:'Which word best completes: "The senator\'s _____ speech captivated the audience"?',options:['verbose','laconic','eloquent','pedantic'],answer:2},
+        {type:'fib',instruction:'Fill in:',question:'The grammatical term for a word modifying a verb is _____.', answer:'adverb',hint:'part of speech'},
+        {type:'mcq',instruction:'Select:',question:'Which is an example of synecdoche?',options:['"The pen is mightier"','"All hands on deck"','"Wind whispered"','"Cold as ice"'],answer:1},
+        {type:'fib',instruction:'Complete:',question:'The _____ case is used for the subject of a sentence.',answer:'nominative',hint:'grammar case'},
+        {type:'mcq',instruction:'Choose:',question:'Which sentence contains a split infinitive?',options:['He decided to go home.','She tried to boldly speak.','They wanted to leave early.','We hoped to arrive soon.'],answer:1}
+      ]},
+      2:{xp:35,types:['match','mcq'],questions:[
+        {type:'match',instruction:'Match literary movements to centuries:',pairs:[['Romanticism','19th Century'],['Renaissance','15th-16th C'],['Modernism','20th Century'],['Naturalism','Late 19th C']]},
+        {type:'mcq',instruction:'Choose:',question:'"Pathetic fallacy" refers to:',options:['A logical fallacy','Attributing human emotions to nature','A tragic ending','Excessive sentimentality'],answer:1},
+        {type:'fib',instruction:'Fill in:',question:'In linguistics, _____ refers to the study of meaning in language.',answer:'semantics',hint:'branch of linguistics'},
+        {type:'mcq',instruction:'Select:',question:'Which of these is a tautology?',options:['She is kind but cruel.','"Free gift" or "end result"','He ran fast and slow.','The circle was square.'],answer:1},
+        {type:'fib',instruction:'Complete:',question:'The _____ of a poem is its basic rhythmic structure.',answer:'meter',hint:'poetic structure'}
+      ]},
+      3:{xp:40,types:['qa','mcq'],questions:[
+        {type:'qa',instruction:'Write a detailed analysis:',question:'Analyze the theme of ambition in Shakespeare\'s Macbeth in 3-4 sentences.',sampleAnswer:'In Macbeth, ambition is portrayed as a destructive force. Macbeth\'s unchecked desire for power leads him to commit murder and destroys him. Shakespeare suggests that ambition untethered from morality leads to inevitable ruin.'},
+        {type:'mcq',instruction:'Choose:',question:'Which term describes the main argument of an essay?',options:['Topic sentence','Thesis statement','Conclusion','Premise'],answer:1},
+        {type:'fib',instruction:'Fill in:',question:'The use of _____ creates a musical quality through repetition of vowel sounds.',answer:'assonance',hint:'literary device using vowels'},
+        {type:'mcq',instruction:'Select:',question:'Post-colonial literature primarily examines:',options:['Victorian society','Effects of colonization on culture','Greek mythology','Industrial revolution'],answer:1},
+        {type:'qa',instruction:'Respond critically:',question:'Do you agree that "social media has more negative effects than positive"? Give 2 reasons.',sampleAnswer:'I partially agree. Social media enables global connectivity but also promotes anxiety and misinformation. The key lies in responsible usage.'}
+      ]},
+      4:{xp:50,types:['match','fib','qa'],questions:[
+        {type:'match',instruction:'Match authors to works:',pairs:[['Jane Austen','Pride and Prejudice'],['George Orwell','1984'],['F. Scott Fitzgerald','The Great Gatsby'],['Toni Morrison','Beloved']]},
+        {type:'fib',instruction:'Fill in:',question:'The repetition of a consonant sound is called _____.', answer:'alliteration',hint:'poetic device'},
+        {type:'qa',instruction:'Write an analytical paragraph:',question:'How does symbolism function in literature? Give an example.',sampleAnswer:'Symbolism uses objects to represent deeper meanings. In The Great Gatsby, the green light symbolizes Gatsby\'s dreams and the elusive American Dream.'},
+        {type:'mcq',instruction:'Choose:',question:'Which is an example of epistrophe?',options:['Government of the people, by the people, for the people.','Once upon a time.','Slowly and carefully.','Over and over again.'],answer:0},
+        {type:'fib',instruction:'Complete:',question:'A _____ is a 14-line poem with a specific rhyme scheme.',answer:'sonnet',hint:'poetic form'}
+      ]},
+      5:{xp:70,types:['mcq','match','fib','qa'],questions:[
+        {type:'mcq',instruction:'Choose:',question:'Which critical theory focuses on the reader\'s role in creating meaning?',options:['Marxist criticism','Reader-response theory','Formalism','New historicism'],answer:1},
+        {type:'match',instruction:'Match grammatical terms:',pairs:[['Subjunctive','Hypothetical mood'],['Pluperfect','Past before past'],['Ablative','Instrument/agent case'],['Apposition','Renaming a noun']]},
+        {type:'fib',instruction:'Fill in:',question:'The _____ hypothesis argues language shapes thought.',answer:'Sapir-Whorf',hint:'linguistic relativity'},
+        {type:'qa',instruction:'Write an essay introduction:',question:'Write an introduction for: "Technology has transformed modern education."',sampleAnswer:'In the 21st century, technology has revolutionized education. From digital classrooms to AI tutoring, the integration of technology has redefined teaching and learning paradigms.'},
+        {type:'mcq',instruction:'Select:',question:'Which concept does Derrida\'s "deconstruction" challenge?',options:['Binary oppositions in texts','Phonetic alphabets','Historical accuracy','Narrative structure'],answer:0}
+      ]}
+    }
+  },
+  Urdu:{
+    easy:{
+      1:{xp:10,types:['mcq','fib'],questions:[
+        {type:'mcq',instruction:'Sahi jawab chunen:',question:'"Ghar" ka matlab kya hai?',options:['School','House','Market','Mosque'],answer:1},
+        {type:'fib',instruction:'Khaali jagah bharein:',question:'Aasman ka rang _____ hai.',answer:'neela',hint:'sky color in Urdu'},
+        {type:'mcq',instruction:'Chunen:',question:'"Kitab" kya hoti hai?',options:['Fruit','Book','Animal','Tool'],answer:1},
+        {type:'fib',instruction:'Mukammal karein:',question:'Paani _____ hota hai.',answer:'saaf',hint:'quality of water'},
+        {type:'mcq',instruction:'Batain:',question:'"Subah" ka matlab kya hai?',options:['Night','Evening','Morning','Afternoon'],answer:2}
+      ]},
+      2:{xp:15,types:['match','mcq'],questions:[
+        {type:'match',instruction:'Milain:',pairs:[['Sher','Lion'],['Hathi','Elephant'],['Billi','Cat'],['Kutta','Dog']]},
+        {type:'mcq',instruction:'Chunen:',question:'"Bhai" ka rishta kya hai?',options:['Father','Brother','Uncle','Friend'],answer:1},
+        {type:'fib',instruction:'Bharein:',question:'Roti _____ se banati hai.',answer:'aata',hint:'flour in Urdu'},
+        {type:'mcq',instruction:'Jawab dein:',question:'"Barish" ka kya matlab hai?',options:['Snow','Sunshine','Rain','Wind'],answer:2},
+        {type:'fib',instruction:'Mukammal karein:',question:'Pakistan ka qaumi phool _____ hai.',answer:'jasmine',hint:'national flower'}
+      ]},
+      3:{xp:20,types:['fib','qa'],questions:[
+        {type:'qa',instruction:'2 jumle likhein:',question:'Apna paseeda khana bataen aur kyun achha lagta hai.',sampleAnswer:'Mera paseeda khana biryani hai. Iska khushboo aur zyaika bahut lazeez hota hai.'},
+        {type:'fib',instruction:'Bharein:',question:'Pakistan ka qaumi rang _____ aur safed hai.',answer:'sabz',hint:'national color'},
+        {type:'mcq',instruction:'Sahi chunen:',question:'"Ustani" ka matlab kya hai?',options:['Student','Teacher (female)','Doctor','Nurse'],answer:1},
+        {type:'fib',instruction:'Pura karein:',question:'Eid _____ baar saal mein aati hai.',answer:'do',hint:'number of Eids'},
+        {type:'qa',instruction:'Likhein:',question:'Apne ghar ke baare mein 2 jumle likhein.',sampleAnswer:'Mera ghar do manzila hai. Hamare ghar mein phool ka bagicha bhi hai.'}
+      ]},
+      4:{xp:25,types:['match','mcq'],questions:[
+        {type:'match',instruction:'Alfaaz se matlab milain:',pairs:[['Aasman','Sky'],['Zameen','Earth'],['Suraj','Sun'],['Chand','Moon']]},
+        {type:'mcq',instruction:'Sahi shaks chunen:',question:'"Wazir-e-Azam" matlab kya hai?',options:['President','Prime Minister','King','Governor'],answer:1},
+        {type:'fib',instruction:'Bharein:',question:'Urdu Pakistan ki _____ zaban hai.',answer:'qaumi',hint:'national'},
+        {type:'mcq',instruction:'Chunen:',question:'"Khwab" ka kya matlab hai?',options:['Desire','Dream','Memory','Thought'],answer:1},
+        {type:'fib',instruction:'Mukammal:',question:'Lahore Pakistan ka doosra bara _____ hai.',answer:'sheher',hint:'city'}
+      ]},
+      5:{xp:35,types:['mcq','match','fib','qa'],questions:[
+        {type:'mcq',instruction:'Chunen:',question:'"Muhabbat" ka mutaradif kya hai?',options:['Nafrat','Pyaar','Ghussa','Khouf'],answer:1},
+        {type:'match',instruction:'Rang se matlab milain:',pairs:[['Laal','Red'],['Peela','Yellow'],['Hara','Green'],['Neela','Blue']]},
+        {type:'fib',instruction:'Bharein:',question:'Pakistan _____ August 1947 ko azaad hua.',answer:'14',hint:'date of independence'},
+        {type:'qa',instruction:'Likhein:',question:'Apne paseeda mausam ke baare mein 3 jumle likhein.',sampleAnswer:'Mujhe sardi ka mausam pasand hai. Is mausam mein khushgawar thandi hawa chalti hai. Hum gaarm chai aur pakore khate hain.'},
+        {type:'mcq',instruction:'Sahi batain:',question:'"Qalam" kya hota hai?',options:['Book','Pen','Pencil','Ruler'],answer:1}
+      ]}
+    },
+    medium:{
+      1:{xp:20,types:['mcq','fib'],questions:[
+        {type:'mcq',instruction:'Mutaradif chunen:',question:'"Tajjub" ka mutaradif kya hai?',options:['Khushi','Hairat','Gham','Dar'],answer:1},
+        {type:'fib',instruction:'Kahawat mukammal karein:',question:'Jahan chah, wahan _____.', answer:'raah',hint:'where there is will'},
+        {type:'mcq',instruction:'Chunen:',question:'Urdu adab ka mashoor shair kaun hai?',options:['Faiz','Ghalib','Iqbal','Mir'],answer:1},
+        {type:'fib',instruction:'Bharein:',question:'Urdu mein harf-e-jar ka matlab _____ hota hai.',answer:'preposition',hint:'grammar term'},
+        {type:'mcq',instruction:'Select:',question:'"Ghazal" ki pehli sher ko kya kehte hain?',options:['Radif','Matla','Maqta','Qafia'],answer:1}
+      ]},
+      2:{xp:25,types:['match','fib'],questions:[
+        {type:'match',instruction:'Milain:',pairs:[['Ghalib','Ghazal'],['Iqbal','Shikwa'],['Faiz','Inqilabi Shayari'],['Mir Taqi Mir','Kulliyat-e-Mir']]},
+        {type:'fib',instruction:'Mukammal karein:',question:'Urdu ka mashoor novel "_____ Jan Ada" hai.',answer:'Umrao',hint:'classic Urdu novel character'},
+        {type:'mcq',instruction:'Chunen:',question:'"Tashbih" kya hoti hai?',options:['Metaphor','Simile','Alliteration','Rhyme'],answer:1},
+        {type:'fib',instruction:'Bharein:',question:'Urdu script _____ se likhti hai.',answer:'daen se baaen',hint:'direction of Urdu'},
+        {type:'mcq',instruction:'Select:',question:'"Sabk-e-Hindi" kya hai?',options:['Indian style Urdu poetry','Arabic poetry','Persian prose','Folk literature'],answer:0}
+      ]},
+      3:{xp:30,types:['qa','mcq'],questions:[
+        {type:'qa',instruction:'2-3 jumle:',question:'Allama Iqbal ka Pakistan se kya rishta tha?',sampleAnswer:'Allama Iqbal ne 1930 mein alag Muslim mulk ka khwab dekha. Unhe Shair-e-Mashriq kaha jata hai. Unki shayari ne Muslim qaum mein ittehad paida kiya.'},
+        {type:'mcq',instruction:'Chunen:',question:'"Mazmoon" kya hota hai?',options:['Poem','Story','Essay','Letter'],answer:2},
+        {type:'fib',instruction:'Bharein:',question:'Urdu zaban mein _____ haroof hain.',answer:'38',hint:'number of Urdu letters'},
+        {type:'mcq',instruction:'Select:',question:'"Dastan-e-Amir Hamza" kya hai?',options:['Epic novel','Short story','Poem','Play'],answer:0},
+        {type:'qa',instruction:'Likhein:',question:'"Parishani" ka jumle mein istemal karein aur matlab samjhaen.',sampleAnswer:'Parishani ka matlab takleef hai. Garibi ki wajah se unhe bahut parishani uthani parti hai.'}
+      ]},
+      4:{xp:35,types:['match','fib'],questions:[
+        {type:'match',instruction:'Adabi istilahat milain:',pairs:[['Radif','Repeated phrase in ghazal'],['Maqta','Last verse with poet name'],['Beher','Meter/rhythm'],['Qafia','Rhyme pattern']]},
+        {type:'fib',instruction:'Bharein:',question:'"Chiragh-e-Rah" Qudratullah Shahab ka mashoor _____ hai.',answer:'novel',hint:'literary genre'},
+        {type:'mcq',instruction:'Chunen:',question:'Urdu mein "Fi\'l-e-Mudari" kaunsa tense hai?',options:['Past','Present','Future','Perfect'],answer:1},
+        {type:'fib',instruction:'Mukammal:',question:'Ibn-e-Insha apni _____ ke liye mashoor hain.',answer:'mazah nigari',hint:'humorous writing'},
+        {type:'mcq',instruction:'Select:',question:'"Aab-e-Hayat" kisne likhi?',options:['Ghalib','Muhammad Husain Azad','Shibli','Hali'],answer:1}
+      ]},
+      5:{xp:50,types:['mcq','match','fib','qa'],questions:[
+        {type:'mcq',instruction:'Chunen:',question:'"Riwayat" ka matlab kya hai?',options:['Innovation','Tradition','Revolt','Progress'],answer:1},
+        {type:'match',instruction:'Milain:',pairs:[['Mushfiq Khwaja','Tanqeed'],['Ghulam Abbas','Afsana'],['Faiz Ahmed Faiz','Taraqqi pasand shayari'],['Mumtaz Mufti','Sawaneh umri']]},
+        {type:'fib',instruction:'Bharein:',question:'"Bain-ul-aqwami" ka matlab _____ hai.',answer:'international',hint:'between nations'},
+        {type:'qa',instruction:'Taqreeban 3 jumle:',question:'"Watan ki mohabbat" ke mauzu par chand jumle likhein.',sampleAnswer:'Watan ki mohabbat iman ka hissa hai. Apne mulk ki khidmat karna har shehri ka farz hai. Hum sab mila kar Pakistan ko taraqqi de sakte hain.'},
+        {type:'mcq',instruction:'Select:',question:'Urdu mein "Ism-e-Sifat" kya hota hai?',options:['Noun','Verb','Adjective','Adverb'],answer:2}
+      ]}
+    },
+    hard:{
+      1:{xp:30,types:['mcq','fib'],questions:[
+        {type:'mcq',instruction:'Chunen:',question:'Ghalib ka takhallus kya tha?',options:['Asad','Ghalib','Mirza','Assad Ullah'],answer:1},
+        {type:'fib',instruction:'Bharein:',question:'"Angare" majmue ka saal _____ hai.',answer:'1932',hint:'year of publication'},
+        {type:'mcq',instruction:'Select:',question:'"Mizah" aur "tanz" mein kya farq hai?',options:['Koi farq nahi','Mizah khushgawar, tanz criticism','Tanz khushgawar, mizah serious','Dono same'],answer:1},
+        {type:'fib',instruction:'Mukammal:',question:'Mirza Asadullah Khan ka takhallus _____ tha.',answer:'Ghalib',hint:'pen name'},
+        {type:'mcq',instruction:'Chunen:',question:'"Halqa-e-Arbab-e-Zauq" kab qaim hua?',options:['1932','1939','1945','1950'],answer:1}
+      ]},
+      2:{xp:35,types:['match','qa'],questions:[
+        {type:'match',instruction:'Adabi tahreekat milain:',pairs:[['Taraqqi Pasand Tahreek','1936'],['Halqa Arbab Zauq','1939'],['Jadeediyat','1960s'],['Mabadajadeediyat','1980s']]},
+        {type:'qa',instruction:'Mukhtasar jawaab:',question:'"Angarey" majmue ki isha\'at par itna hangama kyun hua?',sampleAnswer:'"Angarey" 1932 mein shaya hua aur mazhabi rawayat ki khilaaf mawad tha. Ulemaa ne shadeed virodh kiya. Hukumat ne is kitaab ko ban kar diya.'},
+        {type:'fib',instruction:'Bharein:',question:'"Bagh-o-Bahar" Mir Amman ne _____ ke liye tarjuma ki.',answer:'Fort William College',hint:'British institution'},
+        {type:'mcq',instruction:'Select:',question:'"Khyal bandi" shayari ki kya khasusiyat hai?',options:['Simple language','Complex imagery','Folk themes','Historical references'],answer:1},
+        {type:'qa',instruction:'Taqreeban 3 jumle:',question:'Faiz Ahmed Faiz ki shayari mein "inqilab" ka tasawwur?',sampleAnswer:'Faiz ki shayari mein inqilab aur mohabbat ka sangam hai. Unhon ne mazloomon ki awaaz ko shayari ka medium banaya. Romance aur siyasi shaoor dono milte hain.'}
+      ]},
+      3:{xp:40,types:['mcq','fib','qa'],questions:[
+        {type:'mcq',instruction:'Chunen:',question:'"Urdu qavaed" ke hisaab se "mubtada" kya hota hai?',options:['Predicate','Object','Subject','Verb'],answer:2},
+        {type:'fib',instruction:'Bharein:',question:'Ismail Meerathi _____ adab ke liye mashoor hain.',answer:'bachon ka',hint:'literature for children'},
+        {type:'qa',instruction:'Taqreeban 4 jumle:',question:'"Modernism" Urdu adab mein kis tarah aaya?',sampleAnswer:'Modernism Urdu mein 1960s mein aaya. Is tahreek ne roaiti mauzu aur asloob ko challenge kiya. Intizar Husain aur Qurratulain Hyder is daur ke namaindah hain.'},
+        {type:'mcq',instruction:'Select:',question:'"Surrealism" Urdu mein kaunse daur mein aaya?',options:['1940s','1960s','1980s','1990s'],answer:1},
+        {type:'fib',instruction:'Mukammal:',question:'"Shehr-e-Afsoos" _____ ki mashoor nazm hai.',answer:'Noon Meem Rashid',hint:'modernist Urdu poet'}
+      ]},
+      4:{xp:50,types:['match','mcq','qa'],questions:[
+        {type:'match',instruction:'Milain:',pairs:[['Qurratulain Hyder','Aag ka Darya'],['Intizar Husain','Basti'],['Abdullah Husain','Udaas Naslain'],['Shaukat Siddiqui','Khuda ki Basti']]},
+        {type:'mcq',instruction:'Chunen:',question:'"Deconstructivism" Urdu tanqeed mein kab aaya?',options:['1960s','1970s','1980s','1990s'],answer:2},
+        {type:'qa',instruction:'4-5 jumle:',question:'"Aag ka Darya" ko Urdu ka sab se bada novel kyun kaha jata hai?',sampleAnswer:'"Aag ka Darya" do hazar saal ki tawareekh ko sameta hua hai. Hyder ka usloob adabi aur tariqhi dono hain. Waqt ki layering aur kirdar ki nafsiyat khoobsurti se bayan hui hai. Partition ka dard bhi shiddat se mehsoos hota hai.'},
+        {type:'fib',instruction:'Bharein:',question:'"Zabaan ki Siyasat" ka tasawwur _____ tanqeedi riwayat se aaya.',answer:'post-colonial',hint:'literary theory'},
+        {type:'mcq',instruction:'Select:',question:'Urdu mein "fi\'l-e-naaqis" kya hota hai?',options:['Transitive verb','Intransitive verb','Defective verb','Auxiliary verb'],answer:2}
+      ]},
+      5:{xp:70,types:['mcq','match','fib','qa'],questions:[
+        {type:'mcq',instruction:'Chunen:',question:'"Ilm-ul-bayan" mein kya shaamil hai?',options:['Grammar only','Tasbeeh, Majaz, Istiara, Kinaya','Prosody and meter','Rhetoric only'],answer:1},
+        {type:'match',instruction:'Tanqeedi makatib milain:',pairs:[['Marxist criticism','Class struggle'],['Feminist criticism','Gender dynamics'],['Post-colonial','Identity and displacement'],['Psychoanalytic','Unconscious in literature']]},
+        {type:'fib',instruction:'Bharein:',question:'"Sabk" ka matlab Urdu adab mein _____ hota hai.',answer:'andaaz ya tareeqa',hint:'style or method'},
+        {type:'qa',instruction:'Ek paragraph:',question:'"Tajriba aur riwayat" ka tawazun Urdu adab mein kaise qaim hota hai?',sampleAnswer:'Urdu adab mein riwayat aur tajriba hamesha ek dusre se mutasir rahe hain. Sab se behtar adab woh hota hai jo roait ko naye pairaae mein pesh kare. Iqbal, Faiz aur Hyder sab ne yahi kiya.'},
+        {type:'mcq',instruction:'Select:',question:'"Hermeneutics" ka Urdu tarjuma kya sahi hai?',options:['Tafseer-o-Tabeer','Tanqeed','Afsana nigari','Shairi'],answer:0}
+      ]}
+    }
+  },
+  Spanish:{
+    easy:{
+      1:{xp:10,types:['mcq','fib'],questions:[
+        {type:'mcq',instruction:'Elige la respuesta correcta:',question:'¿Qué significa "hola"?',options:['Goodbye','Hello','Please','Thank you'],answer:1},
+        {type:'fib',instruction:'Rellena el espacio:',question:'El cielo es _____.', answer:'azul',hint:'color del cielo'},
+        {type:'mcq',instruction:'Elige:',question:'¿Cómo se dice "cat" en español?',options:['Perro','Pájaro','Gato','Pez'],answer:2},
+        {type:'fib',instruction:'Completa:',question:'Buenos _____ (morning greeting).',answer:'días',hint:'morning greeting'},
+        {type:'mcq',instruction:'Selecciona:',question:'"Rojo" significa:',options:['Blue','Green','Yellow','Red'],answer:3}
+      ]},
+      2:{xp:15,types:['match','mcq'],questions:[
+        {type:'match',instruction:'Une las palabras:',pairs:[['Casa','House'],['Agua','Water'],['Pan','Bread'],['Leche','Milk']]},
+        {type:'mcq',instruction:'Elige:',question:'¿Cuántos días tiene la semana?',options:['5','6','7','8'],answer:2},
+        {type:'fib',instruction:'Rellena:',question:'Yo _____ estudiante. (I am)',answer:'soy',hint:'verb ser, yo form'},
+        {type:'mcq',instruction:'Selecciona:',question:'"Gracias" significa:',options:['Please','Sorry','Thanks','Hello'],answer:2},
+        {type:'fib',instruction:'Completa:',question:'El número diez en inglés es _____.', answer:'ten',hint:'número 10'}
+      ]},
+      3:{xp:20,types:['fib','qa'],questions:[
+        {type:'qa',instruction:'Escribe 1-2 oraciones:',question:'Describe tu color favorito en español.',sampleAnswer:'Mi color favorito es el verde. Me recuerda a la naturaleza y los árboles.'},
+        {type:'fib',instruction:'Rellena:',question:'¿_____ te llamas? Me llamo María.',answer:'Cómo',hint:'question word for name'},
+        {type:'mcq',instruction:'Elige la forma correcta:',question:'"Ella ___ bonita."',options:['soy','es','eres','son'],answer:1},
+        {type:'fib',instruction:'Completa:',question:'España está en _____.', answer:'Europa',hint:'continent'},
+        {type:'qa',instruction:'Escribe:',question:'¿Qué haces los fines de semana? (2 oraciones)',sampleAnswer:'Los fines de semana descanso y leo libros. También salgo con mi familia al parque.'}
+      ]},
+      4:{xp:25,types:['match','mcq'],questions:[
+        {type:'match',instruction:'Une los opuestos:',pairs:[['Grande','Pequeño'],['Caliente','Frío'],['Rápido','Lento'],['Feliz','Triste']]},
+        {type:'mcq',instruction:'Elige:',question:'Plural de "el libro" es:',options:['los libros','las libros','el libros','los libro'],answer:0},
+        {type:'fib',instruction:'Rellena:',question:'Nosotros _____ al colegio. (We go)',answer:'vamos',hint:'ir, nosotros form'},
+        {type:'mcq',instruction:'Selecciona:',question:'"Hablar" significa:',options:['To eat','To speak','To run','To sleep'],answer:1},
+        {type:'fib',instruction:'Completa:',question:'El _____ es el idioma oficial de México.',answer:'español',hint:'official language'}
+      ]},
+      5:{xp:35,types:['mcq','match','fib','qa'],questions:[
+        {type:'mcq',instruction:'Elige:',question:'Género de "la mesa":',options:['Masculine','Feminine','Neutral','Both'],answer:1},
+        {type:'match',instruction:'Une números con palabras:',pairs:[['Uno','One'],['Cinco','Five'],['Diez','Ten'],['Veinte','Twenty']]},
+        {type:'fib',instruction:'Rellena:',question:'¿_____ hora es? Son las tres.',answer:'Qué',hint:'question word'},
+        {type:'qa',instruction:'Escribe 2-3 oraciones:',question:'Describe tu familia en español.',sampleAnswer:'Mi familia tiene cuatro personas. Tengo un hermano y una hermana. Mis padres son muy cariñosos.'},
+        {type:'mcq',instruction:'Selecciona:',question:'"Ellos trabajan" – subject is:',options:['I','You','He/She','They'],answer:3}
+      ]}
+    },
+    medium:{
+      1:{xp:20,types:['mcq','fib'],questions:[
+        {type:'mcq',instruction:'Elige el sinónimo:',question:'Sinónimo de "feliz":',options:['Triste','Contento','Enojado','Cansado'],answer:1},
+        {type:'fib',instruction:'Completa el refrán:',question:'No hay mal que por bien no _____.', answer:'venga',hint:'comes'},
+        {type:'mcq',instruction:'Elige la forma correcta:',question:'"Si yo _____ rico, viajaría."',options:['soy','era','fuera','seré'],answer:2},
+        {type:'fib',instruction:'Rellena:',question:'La capital de Argentina es _____.', answer:'Buenos Aires',hint:'South American capital'},
+        {type:'mcq',instruction:'Selecciona:',question:'¿Cuál es un pronombre reflexivo?',options:['yo','tú','me','él'],answer:2}
+      ]},
+      2:{xp:25,types:['match','fib'],questions:[
+        {type:'match',instruction:'Une recursos literarios:',pairs:[['Metáfora','Comparación directa'],['Símil','Como o igual que'],['Aliteración','Repetición de sonidos'],['Hipérbole','Exageración']]},
+        {type:'fib',instruction:'Completa:',question:'El Quijote fue escrito por Miguel de _____.', answer:'Cervantes',hint:'famous Spanish author'},
+        {type:'mcq',instruction:'Elige:',question:'"Se lo di ayer" – pronombre de OD:',options:['se','lo','le','di'],answer:1},
+        {type:'fib',instruction:'Rellena:',question:'El pretérito indefinido de "ir": él _____.', answer:'fue',hint:'past tense of ir'},
+        {type:'mcq',instruction:'Selecciona:',question:'"Lluvia de ideas" es una técnica de:',options:['Reading','Brainstorming','Memorizing','Testing'],answer:1}
+      ]},
+      3:{xp:30,types:['qa','mcq'],questions:[
+        {type:'qa',instruction:'Escribe 3 oraciones:',question:'Describe los beneficios de aprender idiomas.',sampleAnswer:'Aprender idiomas abre puertas en el mundo laboral. También nos permite conocer otras culturas. Además, mejora la memoria y las capacidades cognitivas.'},
+        {type:'mcq',instruction:'Elige:',question:'"Aunque esté cansado, iré" usa:',options:['Indicativo','Subjuntivo','Imperativo','Condicional'],answer:1},
+        {type:'fib',instruction:'Rellena:',question:'La _____ es la parte más importante de un ensayo.',answer:'tesis',hint:'thesis statement'},
+        {type:'mcq',instruction:'Selecciona:',question:'¿Qué escritor español ganó el Nobel en 1989?',options:['García Márquez','Camilo José Cela','Pablo Neruda','Vargas Llosa'],answer:1},
+        {type:'qa',instruction:'Responde:',question:'¿Cuál es la diferencia entre "ser" y "estar"?',sampleAnswer:'"Ser" expresa características permanentes (Soy estudiante), mientras "estar" indica estados temporales o ubicación (Estoy cansado).'}
+      ]},
+      4:{xp:35,types:['match','fib','mcq'],questions:[
+        {type:'match',instruction:'Une autores con obras:',pairs:[['García Márquez','Cien años de soledad'],['Isabel Allende','La casa de los espíritus'],['Pablo Neruda','Veinte poemas de amor'],['Laura Esquivel','Como agua para chocolate']]},
+        {type:'fib',instruction:'Completa:',question:'El _____ mágico es una corriente literaria latinoamericana.',answer:'realismo',hint:'magical realism'},
+        {type:'mcq',instruction:'Elige:',question:'¿Qué es un "leísmo"?',options:['Using "le" for direct object','Using "la" for indirect','Confusing ser/estar','Wrong gender agreement'],answer:0},
+        {type:'fib',instruction:'Rellena:',question:'En América, "vosotros" se reemplaza por _____.', answer:'ustedes',hint:'plural you in Latin America'},
+        {type:'mcq',instruction:'Selecciona:',question:'"Se venden casas" es:',options:['Voz activa','Pasiva refleja','Impersonal','Pasiva con ser'],answer:1}
+      ]},
+      5:{xp:50,types:['mcq','match','fib','qa'],questions:[
+        {type:'mcq',instruction:'Elige:',question:'¿Cuál es una oración concesiva?',options:['Iré si quieres.','Aunque llueva, saldré.','Vine porque me llamaste.','Lo haré para ti.'],answer:1},
+        {type:'match',instruction:'Une términos gramaticales:',pairs:[['Apócope','Shortening of word'],['Pronominalización','Replacing noun with pronoun'],['Deixis','Reference to context'],['Elipsis','Omission of words']]},
+        {type:'fib',instruction:'Rellena:',question:'El _____ estudia los sonidos del lenguaje.',answer:'fonología',hint:'linguistics branch'},
+        {type:'qa',instruction:'Escribe un párrafo:',question:'¿Cómo ha influido la literatura hispanoamericana en la cultura mundial?',sampleAnswer:'La literatura hispanoamericana ha contribuido enormemente al mundo. El realismo mágico de García Márquez redefinió la narrativa contemporánea. Autores como Borges y Neruda han inspirado escritores de todo el mundo.'},
+        {type:'mcq',instruction:'Selecciona:',question:'"Bildungsroman" en español se refiere a:',options:['Novela de aventuras','Novela de formación','Novela policiaca','Novela histórica'],answer:1}
+      ]}
+    },
+    hard:{
+      1:{xp:30,types:['mcq','fib'],questions:[
+        {type:'mcq',instruction:'Elige:',question:'¿Cuál es la función del subjuntivo en "espero que vengas"?',options:['Expresa certeza','Expresa deseo o duda','Indica mandato','Describe el pasado'],answer:1},
+        {type:'fib',instruction:'Rellena:',question:'El _____ es un verso de 11 sílabas métricas.',answer:'endecasílabo',hint:'11-syllable verse'},
+        {type:'mcq',instruction:'Selecciona:',question:'¿Qué figura retórica es "el silencio gritaba"?',options:['Metáfora','Símil','Oxímoron','Personificación'],answer:2},
+        {type:'fib',instruction:'Completa:',question:'La diéresis (¨) en español se usa sobre la _____.', answer:'u',hint:'vowel with diaeresis'},
+        {type:'mcq',instruction:'Elige:',question:'¿Cuál es una obra del Siglo de Oro español?',options:['Niebla','La vida es sueño','Nada','Rayuela'],answer:1}
+      ]},
+      2:{xp:35,types:['match','mcq','qa'],questions:[
+        {type:'match',instruction:'Une movimientos literarios:',pairs:[['Modernismo','Fin del siglo XIX'],['Vanguardismo','1920s'],['Generación del 27','España 1927'],['Boom Latinoamericano','1960-70s']]},
+        {type:'mcq',instruction:'Selecciona:',question:'La "narrativa no confiable" implica:',options:['The narrator knows everything','We cannot fully trust the narrator','Story is unfinished','Narrator is a child'],answer:1},
+        {type:'qa',instruction:'Escribe 3-4 oraciones:',question:'Analiza el simbolismo en "Cien años de soledad".',sampleAnswer:'En Cien años de soledad, Macondo simboliza América Latina atrapada en ciclos históricos. La lluvia interminable representa el declive. García Márquez usa estos símbolos para criticar la realidad política latinoamericana.'},
+        {type:'fib',instruction:'Rellena:',question:'El _____ es la repetición de estructuras sintácticas paralelas.',answer:'paralelismo',hint:'syntactic device'},
+        {type:'mcq',instruction:'Elige:',question:'"Perífrasis verbal" en "voy a estudiar" indica:',options:['Past action','Immediate future','Habitual action','Conditional'],answer:1}
+      ]},
+      3:{xp:40,types:['mcq','fib','qa'],questions:[
+        {type:'mcq',instruction:'Selecciona:',question:'¿Cuál es el "correlato objetivo" de T.S. Eliot?',options:['Direct description','Using objects to evoke emotion','Abstract concepts','Stream of consciousness'],answer:1},
+        {type:'fib',instruction:'Completa:',question:'El español tiene _____ tiempos en el modo indicativo.',answer:'10',hint:'number of indicative tenses'},
+        {type:'qa',instruction:'Análisis de 4 oraciones:',question:'¿En qué consiste el realismo mágico y cómo lo emplea García Márquez?',sampleAnswer:'El realismo mágico integra lo fantástico en la realidad cotidiana. García Márquez lo usa para reflejar la cosmovisión latinoamericana. En Cien años de soledad, muertos conviven con vivos. Esta técnica cuestiona la distinción entre real e imaginario.'},
+        {type:'mcq',instruction:'Elige:',question:'¿Qué concepto de Saussure establece que el signo es arbitrario?',options:['Parole','Langue','Arbitrariedad del signo','Sintagma'],answer:2},
+        {type:'fib',instruction:'Rellena:',question:'La _____ estudia cómo el contexto afecta el significado.',answer:'pragmática',hint:'linguistics branch'}
+      ]},
+      4:{xp:50,types:['match','qa','fib'],questions:[
+        {type:'match',instruction:'Une corrientes críticas:',pairs:[['Deconstrucción','Derrida'],['Nuevo Historicismo','Greenblatt'],['Crítica feminista','Beauvoir'],['Psicoanálisis literario','Freud/Lacan']]},
+        {type:'qa',instruction:'Escribe un párrafo crítico:',question:'Compara la estructura de "Rayuela" con la novela tradicional.',sampleAnswer:'"Rayuela" rompe con la novela tradicional al ofrecer múltiples órdenes de lectura. Cortázar desafía la linealidad y convierte al lector en co-creador. Esto contrasta con la novela clásica que sigue una progresión lógica y cronológica.'},
+        {type:'fib',instruction:'Completa:',question:'El término _____ de Bajtin se refiere a la diversidad de voces en una novela.',answer:'dialogismo',hint:'Bakhtin concept'},
+        {type:'mcq',instruction:'Selecciona:',question:'"Écfrasis" en literatura es:',options:['A type of rhyme','Verbal description of visual work','Dialogue technique','Narrative flashback'],answer:1},
+        {type:'fib',instruction:'Rellena:',question:'La _____ es el estudio de los signos y su significado cultural.',answer:'semiótica',hint:'study of signs'}
+      ]},
+      5:{xp:70,types:['mcq','match','fib','qa'],questions:[
+        {type:'mcq',instruction:'Elige:',question:'¿Qué implica la "muerte del autor" de Roland Barthes?',options:['Authors should not write about death','Author\'s intention is irrelevant','Books should be unsigned','Criticism is impossible'],answer:1},
+        {type:'match',instruction:'Une conceptos lingüísticos:',pairs:[['Diacronía','Language change over time'],['Sincronía','Language at one point'],['Fonema','Minimal sound unit'],['Morfema','Minimal meaning unit']]},
+        {type:'fib',instruction:'Completa:',question:'El _____ de Foucault analiza el poder del discurso en la sociedad.',answer:'discurso',hint:'power-knowledge concept'},
+        {type:'qa',instruction:'Escribe una introducción:',question:'Escribe una introducción para: "La posmodernidad en la literatura latinoamericana."',sampleAnswer:'La posmodernidad ha redefinido los cánones de la literatura latinoamericana. En el siglo XXI, autores como Bolaño y Nettel exploran la fragmentación identitaria y la metaficción. Este ensayo analiza cómo estas estrategias reflejan las tensiones del mundo contemporáneo.'},
+        {type:'mcq',instruction:'Selecciona:',question:'Rasgo principal de la narrativa "hipertextual":',options:['Linear plot','Non-linear, reader-directed','Poetic only','Short story format'],answer:1}
+      ]}
+    }
+  }
+};
+
+// STATE
+let state={lang:'',cat:'',level:0,questions:[],qIndex:0,score:0,hearts:3,xp:0,answered:false,matchSelected:{left:null,right:null},matchedPairs:[]};
+
+// ── PROGRESS SYSTEM ──
+// progress['English']['easy'] = highest level completed (0 = none)
+const progress = {};
+function getProgress(lang,cat){ return (progress[lang]&&progress[lang][cat])||0; }
+function setProgress(lang,cat,lvl){
+  if(!progress[lang]) progress[lang]={};
+  if(lvl > (progress[lang][cat]||0)) progress[lang][cat]=lvl;
+}
+function maxUnlocked(lang,cat){ return Math.min(5, getProgress(lang,cat)+1); }
+
+// NAVIGATION
+function goTo(screen){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(screen).classList.add('active');hideFeedback();}
+function selectLanguage(lang){state.lang=lang;document.getElementById('cat-title').textContent=lang+' – Difficulty';goTo('category');}
+function selectCategory(cat){state.cat=cat;state.level=0;renderLevels();goTo('levels');}
+
+// LEVELS
+const levelEmojis={easy:['🌱','🌿','🍀','🌸','🌟'],medium:['🔥','⚡','💫','🌊','🏆'],hard:['💎','🎯','🧠','⚔️','👑']};
+const levelTitles={easy:['Beginner','Explorer','Learner','Student','Graduate'],medium:['Challenger','Fighter','Warrior','Expert','Master'],hard:['Scholar','Analyst','Critic','Sage','Legend']};
+
+function renderLevels(newlyUnlocked){
+  const cat=state.cat; const lang=state.lang;
+  const path=document.getElementById('level-path');
+  document.getElementById('levels-title').textContent=lang+' – '+cat.charAt(0).toUpperCase()+cat.slice(1);
+  path.innerHTML='';
+  const unlocked = maxUnlocked(lang,cat); // levels 1..unlocked are open
+
+  for(let i=1;i<=5;i++){
+    const data=QUESTION_BANK[lang][cat][i];
+    const isUnlocked = (i <= unlocked);
+    const isNew = (i === newlyUnlocked); // this level just got unlocked → special animation
+
+    const node=document.createElement('div');node.className='level-node';
+    node.style.animationDelay=((i-1)*0.12)+'s';
+
+    if(i>1){
+      const conn=document.createElement('div');conn.className='level-connector';
+      // connector glows green if this edge connects to a newly unlocked level
+      if(isNew) conn.classList.add('connector-unlock');
+      conn.style.animationDelay=((i-1)*0.12-0.06)+'s';
+      node.appendChild(conn);
+    }
+
+    const btn=document.createElement('button');
+    if(isUnlocked){
+      const isFirstLevel = (i===1 && !newlyUnlocked);
+      btn.className=`level-btn unlocked ${cat}-l${isFirstLevel?' level1-unlocked':''}${isNew?' level-newly-unlocked':''}`;
+      btn.innerHTML=`<span class="level-emoji">${levelEmojis[cat][i-1]}</span><span class="level-label">Level ${i}</span><span class="level-xp xp-badge-anim">+${data.xp}XP</span>`;
+      btn.onclick=()=>{burstStars(btn);setTimeout(()=>startLevel(i),300);};
+    } else {
+      btn.className='level-btn locked';
+      btn.innerHTML=`<span class="lock-icon">🔒</span><span class="level-label" style="font-size:.65rem;opacity:.7;">Level ${i}</span><div class="lock-tooltip">Complete Level ${i-1} first!</div>`;
+      btn.onclick=()=>{shakeBtn(btn);showLockedToast(i);};
+    }
+    node.appendChild(btn);
+
+    const info=document.createElement('div');
+    if(isUnlocked){
+      info.className='level-info';
+      info.innerHTML=`<div class="li-title">${levelTitles[cat][i-1]}</div><div class="li-types">${data.types.join(' • ')}</div>`;
+    } else {
+      info.className='level-info locked-info';
+      info.innerHTML=`<div class="li-title" style="color:#bbb">???</div><div class="li-types">🔒 Locked</div>`;
+    }
+    node.appendChild(info);
+    path.appendChild(node);
+  }
+
+  if(newlyUnlocked){
+    setTimeout(()=>showNewUnlockToast(newlyUnlocked),700);
+  } else {
+    setTimeout(()=>showUnlockToast(),600);
+  }
+}
+
+function burstStars(btn){
+  const rect=btn.getBoundingClientRect();
+  const cx=rect.left+rect.width/2;const cy=rect.top+rect.height/2;
+  const emojis=['⭐','✨','🌟','💫','🎉'];
+  for(let i=0;i<8;i++){
+    const el=document.createElement('div');el.className='star-particle';
+    el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    const angle=(i/8)*2*Math.PI;const dist=60+Math.random()*40;
+    el.style.left=(cx+Math.cos(angle)*dist-12)+'px';
+    el.style.top=(cy+Math.sin(angle)*dist-12)+'px';
+    el.style.animationDelay=(Math.random()*0.2)+'s';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1000);
+  }
+}
+
+function shakeBtn(btn){
+  btn.style.animation='none';
+  requestAnimationFrame(()=>{btn.style.animation='locked-shake .4s ease';});
+  setTimeout(()=>{btn.style.animation='none';},450);
+}
+
+let toastTimeout;
+function showUnlockToast(){
+  let toast=document.getElementById('unlock-toast');
+  if(!toast){toast=document.createElement('div');toast.id='unlock-toast';
+    toast.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:linear-gradient(135deg,#58cc02,#46a302);color:white;padding:12px 24px;border-radius:50px;font-family:Nunito,sans-serif;font-weight:800;font-size:.9rem;z-index:9999;transition:transform .4s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 20px rgba(88,204,2,.4);display:flex;align-items:center;gap:8px;';
+    document.body.appendChild(toast);}
+  toast.innerHTML='🔓 Level 1 is Unlocked! Let\'s Go! 🚀';
+  toast.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(toastTimeout);
+  toastTimeout=setTimeout(()=>{toast.style.transform='translateX(-50%) translateY(80px)';},2500);
+}
+
+function showNewUnlockToast(lvl){
+  let toast=document.getElementById('unlock-toast');
+  if(!toast){
+    toast=document.createElement('div');toast.id='unlock-toast';
+    toast.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);color:white;padding:14px 28px;border-radius:50px;font-family:Nunito,sans-serif;font-weight:800;font-size:.95rem;z-index:9999;transition:transform .5s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:8px;white-space:nowrap;';
+    document.body.appendChild(toast);
+  }
+  toast.style.background='linear-gradient(135deg,#58cc02,#3da800)';
+  toast.style.boxShadow='0 6px 28px rgba(88,204,2,.55)';
+  toast.innerHTML=`🎉 Level ${lvl} Unlocked! Keep going! 🚀`;
+  toast.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(toastTimeout);
+  toastTimeout=setTimeout(()=>{toast.style.transform='translateX(-50%) translateY(100px)';},3000);
+}
+
+function showLockedToast(lvl){
+  let toast=document.getElementById('unlock-toast');
+  if(!toast){toast=document.createElement('div');toast.id='unlock-toast';
+    toast.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);color:white;padding:12px 24px;border-radius:50px;font-family:Nunito,sans-serif;font-weight:800;font-size:.9rem;z-index:9999;transition:transform .4s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:8px;';
+    document.body.appendChild(toast);}
+  toast.style.background='linear-gradient(135deg,#ff4b4b,#c43c3c)';
+  toast.style.boxShadow='0 4px 20px rgba(255,75,75,.4)';
+  toast.innerHTML=`🔒 Level ${lvl} is locked! Complete Level ${lvl-1} first!`;
+  toast.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(toastTimeout);
+  toastTimeout=setTimeout(()=>{toast.style.transform='translateX(-50%) translateY(80px)';},2000);
+}
+
+// QUIZ ENGINE
+function startLevel(lvl){
+  state.level=lvl;const data=QUESTION_BANK[state.lang][state.cat][lvl];
+  state.questions=[...data.questions];state.qIndex=0;state.score=0;state.hearts=3;state.xp=0;state.answered=false;
+  goTo('quiz');renderQuestion();
+}
+
+function renderQuestion(){
+  const q=state.questions[state.qIndex];const total=state.questions.length;
+  document.getElementById('progress-bar').style.width=((state.qIndex/total)*100)+'%';
+  document.getElementById('quiz-hearts').innerHTML='❤️'.repeat(state.hearts)+'🖤'.repeat(3-state.hearts);
+  document.getElementById('xp-badge').textContent=state.xp+' XP';
+  state.answered=false;state.matchSelected={left:null,right:null};state.matchedPairs=[];
+  hideFeedback();
+  const body=document.getElementById('quiz-body');body.innerHTML='';
+  body.classList.remove('quiz-body-anim');void body.offsetWidth;body.classList.add('quiz-body-anim');
+  const colors={mcq:'var(--blue)',match:'var(--purple)',fib:'var(--orange)',qa:'var(--green)'};
+  const badge=document.createElement('div');badge.className='q-type-badge';
+  badge.style.cssText=`background:${colors[q.type]}22;color:${colors[q.type]};`;
+  badge.textContent=({mcq:'Multiple Choice',match:'Match Words',fib:'Fill in the Blank',qa:'Question & Answer'}[q.type]).toUpperCase();
+  body.appendChild(badge);
+  const inst=document.createElement('div');inst.className='q-instruction';inst.textContent=q.instruction;body.appendChild(inst);
+  if(q.type==='mcq')renderMCQ(q,body);
+  else if(q.type==='match')renderMatch(q,body);
+  else if(q.type==='fib')renderFIB(q,body);
+  else if(q.type==='qa')renderQA(q,body);
+  if(q.type!=='match'){
+    const bw=document.createElement('div');bw.className='check-btn-wrap';
+    const cb=document.createElement('button');cb.className='check-btn';cb.id='check-btn';cb.textContent='Check Answer';
+    cb.onclick=()=>checkAnswer(q);bw.appendChild(cb);body.appendChild(bw);
+  }
+}
+
+function renderMCQ(q,body){
+  const qt=document.createElement('div');qt.className='q-text';qt.textContent=q.question;body.appendChild(qt);
+  const opts=document.createElement('div');opts.className='mcq-options';
+  q.options.forEach((o,i)=>{
+    const btn=document.createElement('button');btn.className='mcq-btn';
+    btn.innerHTML=`<div class="option-circle">${['A','B','C','D'][i]}</div>${o}`;btn.dataset.idx=i;
+    btn.onclick=()=>{document.querySelectorAll('.mcq-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');activateCheck();};
+    opts.appendChild(btn);
+  });body.appendChild(opts);
+}
+
+function renderMatch(q,body){
+  const info=document.createElement('div');info.className='q-text';info.textContent='Tap a word from each side to match!';body.appendChild(info);
+  const grid=document.createElement('div');grid.className='match-grid';
+  const lc=document.createElement('div');lc.className='match-col';
+  const rc=document.createElement('div');rc.className='match-col';
+  const rs=[...q.pairs].map(p=>p[1]).sort(()=>Math.random()-.5);
+  q.pairs.forEach((p,i)=>{
+    const l=document.createElement('div');l.className='match-item';l.textContent=p[0];l.dataset.side='left';l.dataset.val=p[0];
+    l.onclick=()=>handleMatch(l,'left',q);lc.appendChild(l);
+  });
+  rs.forEach(v=>{
+    const r=document.createElement('div');r.className='match-item';r.textContent=v;r.dataset.side='right';r.dataset.val=v;
+    r.onclick=()=>handleMatch(r,'right',q);rc.appendChild(r);
+  });
+  grid.appendChild(lc);grid.appendChild(rc);body.appendChild(grid);
+}
+
+function handleMatch(el,side,q){
+  if(el.classList.contains('matched')||el.classList.contains('disabled'))return;
+  document.querySelectorAll(`.match-item[data-side="${side}"]`).forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');state.matchSelected[side]=el;
+  if(state.matchSelected.left&&state.matchSelected.right){
+    const lv=state.matchSelected.left.dataset.val;const rv=state.matchSelected.right.dataset.val;
+    const cp=q.pairs.find(p=>p[0]===lv);
+    if(cp&&cp[1]===rv){
+      state.matchSelected.left.classList.remove('selected');state.matchSelected.right.classList.remove('selected');
+      state.matchSelected.left.classList.add('matched');state.matchSelected.right.classList.add('matched');
+      state.matchedPairs.push(lv);state.matchSelected={left:null,right:null};
+      if(state.matchedPairs.length===q.pairs.length){setTimeout(()=>{earnXP(q);showFeedback(true,'Excellent! 🎉','All pairs matched!');},300);}
+    } else {
+      const sl=state.matchSelected.left;const sr=state.matchSelected.right;
+      sl.classList.add('wrong-flash');sr.classList.add('wrong-flash');
+      setTimeout(()=>{sl.classList.remove('wrong-flash','selected');sr.classList.remove('wrong-flash','selected');state.matchSelected={left:null,right:null};},600);
+    }
+  }
+}
+
+function renderFIB(q,body){
+  const sent=document.createElement('div');sent.className='fib-sentence';
+  const parts=q.question.split('_____');
+  sent.appendChild(document.createTextNode(parts[0]));
+  const inp=document.createElement('input');inp.className='fib-input';inp.id='fib-inp';inp.placeholder=q.hint||'...';inp.autocomplete='off';
+  inp.addEventListener('input',()=>activateCheck());sent.appendChild(inp);
+  if(parts[1])sent.appendChild(document.createTextNode(parts[1]));
+  body.appendChild(sent);
+}
+
+function renderQA(q,body){
+  const qt=document.createElement('div');qt.className='q-text';qt.textContent=q.question;body.appendChild(qt);
+  const ta=document.createElement('textarea');ta.className='qa-textarea';ta.id='qa-inp';ta.placeholder='Write your answer here...';
+  ta.addEventListener('input',()=>activateCheck());body.appendChild(ta);
+  const h=document.createElement('div');h.style.cssText='font-size:.78rem;color:var(--gray);margin-top:4px;';h.textContent='💡 Write your best response – any good answer counts!';body.appendChild(h);
+}
+
+function activateCheck(){const btn=document.getElementById('check-btn');if(btn)btn.classList.add('active');}
+
+function checkAnswer(q){
+  if(state.answered)return;state.answered=true;
+  document.getElementById('check-btn').classList.remove('active');
+  if(q.type==='mcq'){
+    const sel=document.querySelector('.mcq-btn.selected');if(!sel){state.answered=false;return;}
+    const idx=parseInt(sel.dataset.idx);const correct=idx===q.answer;
+    document.querySelectorAll('.mcq-btn').forEach(b=>b.classList.add('disabled'));
+    document.querySelectorAll('.mcq-btn').forEach(b=>{if(parseInt(b.dataset.idx)===q.answer)b.classList.add('correct');});
+    if(!correct){sel.classList.add('wrong');loseHeart();shakeBody();showFeedback(false,'Incorrect! 😟','Correct: '+q.options[q.answer],true,q);}
+    else{earnXP(q);burstConfetti();showFeedback(true,'Correct! 🎉','Amazing work! Keep going! 🚀',false,q);}
+  } else if(q.type==='fib'){
+    const inp=document.getElementById('fib-inp');if(!inp||!inp.value.trim()){state.answered=false;return;}
+    const ua=inp.value.trim().toLowerCase();const correct=ua===q.answer.toLowerCase()||q.answer.toLowerCase().includes(ua)||ua.includes(q.answer.toLowerCase().split(' ')[0]);
+    inp.classList.add(correct?'correct':'wrong');
+    if(correct){inp.disabled=true;earnXP(q);burstConfetti();showFeedback(true,'Correct! 🎉','Perfect answer! ✨',false,q);}
+    else{loseHeart();shakeBody();showFeedback(false,'Not quite! 😟','Correct: '+q.answer,true,q);}
+  } else if(q.type==='qa'){
+    const ta=document.getElementById('qa-inp');if(!ta||!ta.value.trim()){state.answered=false;return;}
+    ta.classList.add('correct');ta.disabled=true;earnXP(q);burstConfetti();
+    showFeedback(true,'Submitted! ✅','Sample: '+q.sampleAnswer.substring(0,55)+'...',false,q);
+  }
+}
+
+function retryQuestion(q){
+  hideFeedback();
+  state.answered=false;
+  // Re-enable inputs for retry
+  if(q.type==='mcq'){
+    document.querySelectorAll('.mcq-btn').forEach(b=>{
+      b.classList.remove('selected','wrong','correct','disabled');
+    });
+  } else if(q.type==='fib'){
+    const inp=document.getElementById('fib-inp');
+    if(inp){inp.classList.remove('wrong','correct');inp.disabled=false;inp.value='';inp.focus();}
+  }
+  const cb=document.getElementById('check-btn');
+  if(cb){cb.classList.remove('active');}
+}
+
+function earnXP(q){
+  const base=QUESTION_BANK[state.lang][state.cat][state.level].xp;
+  const gain=Math.ceil(base/state.questions.length);
+  state.xp+=gain;state.score++;
+  const badge=document.getElementById('xp-badge');
+  badge.textContent=state.xp+' XP';
+  // XP float popup
+  const rect=badge.getBoundingClientRect();
+  const el=document.createElement('div');el.className='xp-pop';
+  el.textContent='+'+gain+' XP ⭐';
+  el.style.left=(rect.left+rect.width/2-40)+'px';el.style.top=(rect.top-10)+'px';
+  document.body.appendChild(el);setTimeout(()=>el.remove(),1300);
+  // progress bar pulse
+  const bar=document.getElementById('progress-bar');
+  bar.classList.remove('pulse');void bar.offsetWidth;bar.classList.add('pulse');
+  setTimeout(()=>bar.classList.remove('pulse'),600);
+}
+
+function loseHeart(){
+  if(state.hearts>0)state.hearts--;
+  const hEl=document.getElementById('quiz-hearts');
+  hEl.innerHTML='❤️'.repeat(state.hearts)+'🖤'.repeat(3-state.hearts);
+  hEl.classList.remove('heart-breaking');void hEl.offsetWidth;hEl.classList.add('heart-breaking');
+  setTimeout(()=>hEl.classList.remove('heart-breaking'),450);
+}
+
+function shakeBody(){
+  const body=document.getElementById('quiz-body');
+  body.classList.remove('wrong-shake');void body.offsetWidth;body.classList.add('wrong-shake');
+  setTimeout(()=>body.classList.remove('wrong-shake'),550);
+}
+
+function burstConfetti(){
+  const colors=['#58cc02','#ffc800','#1cb0f6','#ce82ff','#ff9600','#ff4b4b'];
+  const cx=window.innerWidth/2;const cy=window.innerHeight*0.35;
+  for(let i=0;i<22;i++){
+    const el=document.createElement('div');el.className='confetti-piece';
+    el.style.background=colors[Math.floor(Math.random()*colors.length)];
+    const angle=(Math.random()*2*Math.PI);const dist=80+Math.random()*120;
+    el.style.left=(cx+Math.cos(angle)*dist*(0.5+Math.random()))+'px';
+    el.style.top=(cy+Math.sin(angle)*dist*0.4)+'px';
+    el.style.animationDelay=(Math.random()*0.3)+'s';
+    el.style.borderRadius=Math.random()>0.5?'50%':'2px';
+    document.body.appendChild(el);setTimeout(()=>el.remove(),1600);
+  }
+}
+
+function showFeedback(correct,title,answer,showRetry,q){
+  const bar=document.getElementById('feedback-bar');
+  bar.className='feedback-bar show '+(correct?'correct-fb':'wrong-fb');
+  document.getElementById('fb-icon').textContent=correct?'✅':'❌';
+  document.getElementById('fb-title').textContent=title;
+  document.getElementById('fb-answer').textContent=answer;
+
+  const fbRight=document.getElementById('fb-right');
+  fbRight.innerHTML='';
+
+  if(correct){
+    const cb=document.createElement('button');cb.className='continue-btn';cb.id='continue-btn';
+    cb.style.cssText='background:var(--green);box-shadow:0 4px 0 var(--green-dark);';
+    cb.innerHTML='Continue ➡️';cb.onclick=nextQuestion;
+    fbRight.appendChild(cb);
+  } else {
+    // "Again Try" button — retries same question
+    const rb=document.createElement('button');rb.className='retry-btn';
+    rb.innerHTML='🔄 Again Try';
+    rb.onclick=()=>retryQuestion(q);
+    fbRight.appendChild(rb);
+    // "Skip" button — moves to next
+    const sb=document.createElement('button');sb.className='skip-btn';
+    sb.innerHTML='Skip ➡️';sb.onclick=nextQuestion;
+    fbRight.appendChild(sb);
+  }
+}
+
+function hideFeedback(){document.getElementById('feedback-bar').className='feedback-bar';}
+
+function nextQuestion(){
+  hideFeedback();
+  if(state.hearts<=0){showResult(false);return;}
+  state.qIndex++;
+  if(state.qIndex>=state.questions.length){showResult(true);return;}
+  renderQuestion();
+}
+
+function showResult(completed){
+  const acc=Math.round((state.score/state.questions.length)*100);
+  document.getElementById('r-xp').textContent=state.xp;
+  document.getElementById('r-correct').textContent=state.score+'/'+state.questions.length;
+  document.getElementById('r-acc').textContent=acc+'%';
+
+  // Save session to stats
+  saveSessionStats(state.lang, state.cat, state.level, state.xp, acc, completed);
+
+  const levelPassed = completed && acc >= 50; // pass if completed with >=50% accuracy
+  let newlyUnlocked = null;
+
+  if(levelPassed){
+    const prevMax = getProgress(state.lang, state.cat);
+    setProgress(state.lang, state.cat, state.level);
+    const nowMax = maxUnlocked(state.lang, state.cat);
+    // if a new level became available
+    if(state.level < 5 && nowMax > Math.min(5, prevMax+1)){
+      newlyUnlocked = state.level + 1;
+    } else if(state.level < 5 && getProgress(state.lang,state.cat) === state.level){
+      newlyUnlocked = state.level < 5 ? state.level+1 : null;
+    }
+  }
+
+  // Update result UI
+  const nextBtn = document.getElementById('result-next-btn');
+  if(levelPassed && acc>=80){
+    document.getElementById('result-emoji').textContent='🏆';
+    document.getElementById('result-title').textContent='Level Complete!';
+    document.getElementById('result-subtitle').textContent='You earned '+state.xp+' XP with '+acc+'% accuracy!';
+    setTimeout(()=>{burstConfetti();setTimeout(burstConfetti,400);setTimeout(burstConfetti,800);},200);
+    if(nextBtn) nextBtn.style.display = state.level<5 ? 'block' : 'none';
+  } else if(levelPassed){
+    document.getElementById('result-emoji').textContent='😊';
+    document.getElementById('result-title').textContent='Good Effort!';
+    document.getElementById('result-subtitle').textContent='Level cleared! Next level is now open 🔓';
+    if(nextBtn) nextBtn.style.display = state.level<5 ? 'block' : 'none';
+  } else if(completed){
+    document.getElementById('result-emoji').textContent='😅';
+    document.getElementById('result-title').textContent='Almost There!';
+    document.getElementById('result-subtitle').textContent='Score 50%+ to unlock next level. Try again!';
+    if(nextBtn) nextBtn.style.display='none';
+  } else {
+    document.getElementById('result-emoji').textContent='💔';
+    document.getElementById('result-title').textContent='Out of Hearts!';
+    document.getElementById('result-subtitle').textContent='Practice more and try again!';
+    if(nextBtn) nextBtn.style.display='none';
+  }
+
+  // Store for levels screen
+  state.newlyUnlocked = newlyUnlocked;
+  goTo('result');
+}
+
+//navbar try
+function goToNextLevel(){
+  const nextLvl = state.level + 1;
+  if(nextLvl <= 5){
+    startLevel(nextLvl);
+  } else {
+    goBackToLevels();
+  }
+}
+function goBackToLevels(){
+  renderLevels(state.newlyUnlocked);
+  goTo('levels');
+}
+
+function toggleMenu() {
+    var menu = document.getElementById("dropdownMenu");
+    menu.classList.toggle("show");
+}
+
+// ============================================================
+//  DAILY REWARD + STREAK SYSTEM
+// ============================================================
+var rewardTimerInterval = null;
+
+function getStreakData() {
+  var def = { streak: 0, lastClaim: null, totalCoins: 0, lastPlayDate: null };
+  try { return JSON.parse(localStorage.getItem('speakly_streak') || 'null') || def; }
+  catch(e) { return def; }
+}
+function saveStreakData(d) {
+  localStorage.setItem('speakly_streak', JSON.stringify(d));
+}
+
+function todayStr() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function daysDiff(dateStr1, dateStr2) {
+  var a = new Date(dateStr1), b = new Date(dateStr2);
+  return Math.round((b - a) / 86400000);
+}
+
+function canClaimToday() {
+  var d = getStreakData();
+  if (!d.lastClaim) return true;
+  var now = new Date();
+  var last = new Date(d.lastClaim);
+  var diffMs = now - last;
+  return diffMs >= 24 * 60 * 60 * 1000;
+}
+
+function timeUntilNextClaim() {
+  var d = getStreakData();
+  if (!d.lastClaim) return 0;
+  var last = new Date(d.lastClaim);
+  var next = new Date(last.getTime() + 24 * 60 * 60 * 1000);
+  return Math.max(0, next - new Date());
+}
+
+function formatCountdown(ms) {
+  var totalSec = Math.floor(ms / 1000);
+  var h = Math.floor(totalSec / 3600);
+  var m = Math.floor((totalSec % 3600) / 60);
+  var s = totalSec % 60;
+  return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+
+function getRewardAmount(streak) {
+  if (streak >= 30) return 200;
+  if (streak >= 14) return 150;
+  if (streak >= 7)  return 100;
+  if (streak >= 3)  return 75;
+  return 50;
+}
+
+function openRewardModal() {
+  updateStreakOnOpen();
+  var data = getStreakData();
+  var canClaim = canClaimToday();
+  var reward = getRewardAmount(data.streak + (canClaim ? 1 : 0));
+
+  document.getElementById('modalStreakCount').textContent = data.streak;
+  document.getElementById('modalStreakLabel').textContent = data.streak === 1 ? 'Day' : 'Days';
+  document.getElementById('rewardAmount').textContent = '+' + reward + ' Coins';
+
+  var claimBtn = document.getElementById('claimBtn');
+  var timerEl = document.getElementById('rewardTimer');
+  var msgEl = document.getElementById('claimedMsg');
+
+  if (rewardTimerInterval) clearInterval(rewardTimerInterval);
+
+  if (canClaim) {
+    claimBtn.disabled = false;
+    claimBtn.textContent = 'Claim Reward!';
+    timerEl.textContent = '';
+    msgEl.textContent = '';
+  } else {
+    claimBtn.disabled = true;
+    claimBtn.textContent = 'Already Claimed';
+    msgEl.textContent = 'Kal wapas aao!';
+    updateTimer();
+    rewardTimerInterval = setInterval(updateTimer, 1000);
+  }
+
+  document.getElementById('rewardOverlay').classList.add('active');
+}
+
+function updateTimer() {
+  var ms = timeUntilNextClaim();
+  if (ms <= 0) {
+    clearInterval(rewardTimerInterval);
+    document.getElementById('rewardTimer').textContent = '';
+    document.getElementById('claimBtn').disabled = false;
+    document.getElementById('claimBtn').textContent = 'Claim Reward!';
+    document.getElementById('claimedMsg').textContent = '';
+    return;
+  }
+  document.getElementById('rewardTimer').textContent = 'Next reward in: ' + formatCountdown(ms);
+}
+
+function claimReward() {
+  if (!canClaimToday()) return;
+  var data = getStreakData();
+  var today = todayStr();
+
+  // Streak logic
+  if (!data.lastClaim) {
+    data.streak = 1;
+  } else {
+    var last = new Date(data.lastClaim);
+    var lastDate = last.getFullYear() + '-' + String(last.getMonth()+1).padStart(2,'0') + '-' + String(last.getDate()).padStart(2,'0');
+    var diff = daysDiff(lastDate, today);
+    if (diff === 1) {
+      data.streak += 1;  // Consecutive day
+    } else if (diff === 0) {
+      return; // Already claimed today
+    } else {
+      data.streak = 1;   // Streak broken
+    }
+  }
+
+  var reward = getRewardAmount(data.streak);
+  data.totalCoins = (data.totalCoins || 0) + reward;
+  data.lastClaim = new Date().toISOString();
+  saveStreakData(data);
+
+  // Update UI
+  var claimBtn = document.getElementById('claimBtn');
+  claimBtn.disabled = true;
+  claimBtn.textContent = 'Claimed!';
+  document.getElementById('claimedMsg').textContent = '+' + reward + ' coins mile! Wapas aao kal!';
+  document.getElementById('rewardAmount').textContent = '+' + reward + ' Coins';
+  document.getElementById('modalStreakCount').textContent = data.streak;
+  document.getElementById('rewardBadge').textContent = 'DONE';
+  document.getElementById('rewardBadge').style.background = '#4ade80';
+
+  updateStreakUI();
+  rewardTimerInterval = setInterval(updateTimer, 1000);
+  updateTimer();
+}
+
+function closeRewardModal() {
+  document.getElementById('rewardOverlay').classList.remove('active');
+  if (rewardTimerInterval) clearInterval(rewardTimerInterval);
+}
+
+function updateStreakOnOpen() {
+  var data = getStreakData();
+  if (!data.lastClaim) return;
+  var last = new Date(data.lastClaim);
+  var lastDate = last.getFullYear() + '-' + String(last.getMonth()+1).padStart(2,'0') + '-' + String(last.getDate()).padStart(2,'0');
+  var today = todayStr();
+  var diff = daysDiff(lastDate, today);
+  // If more than 1 day gap and today not already claimed — streak broken
+  if (diff > 1) {
+    data.streak = 0;
+    saveStreakData(data);
+  }
+}
+
+function updateStreakUI() {
+  var data = getStreakData();
+  document.getElementById('streakCount').textContent = data.streak;
+  document.getElementById('totalCoins').textContent = data.totalCoins || 0;
+
+  // Build last 7 days circles
+  var row = document.getElementById('streakDaysRow');
+  row.innerHTML = '';
+  var days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var today = new Date();
+  var todayDay = today.getDay(); // 0=Sun
+  var weekDays = [];
+  for (var i = 6; i >= 0; i--) {
+    var d = new Date(today);
+    d.setDate(today.getDate() - i);
+    weekDays.push(d);
+  }
+
+  weekDays.forEach(function(d, idx) {
+    var el = document.createElement('div');
+    el.className = 'streak-day';
+    var dName = ['Su','Mo','Tu','We','Th','Fr','Sa'][d.getDay()];
+    el.textContent = dName;
+
+    var dStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    var todayStr2 = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+
+    if (data.lastClaim) {
+      var lastClaim = new Date(data.lastClaim);
+      var lastStr = lastClaim.getFullYear() + '-' + String(lastClaim.getMonth()+1).padStart(2,'0') + '-' + String(lastClaim.getDate()).padStart(2,'0');
+      var diffFromLast = daysDiff(dStr, lastStr);
+      var streak = data.streak;
+      // Days within streak range and before/on lastClaim date
+      if (diffFromLast >= 0 && diffFromLast < streak) {
+        el.classList.add('done');
+      }
+    }
+    if (dStr === todayStr2 && !el.classList.contains('done')) {
+      el.classList.add('today');
+    }
+    row.appendChild(el);
+  });
+
+  // Badge update
+  var badge = document.getElementById('rewardBadge');
+  if (canClaimToday()) {
+    badge.textContent = 'CLAIM';
+    badge.style.background = '';
+  } else {
+    badge.textContent = 'DONE';
+    badge.style.background = '#4ade80';
+  }
+
+  // Streak broken message
+  var brokenEl = document.getElementById('streakBrokenMsg');
+  if (data.streak === 0 && data.lastClaim) {
+    brokenEl.textContent = 'Streak toot gayi! Aaj claim karo aur dobara shuru karo!';
+  } else {
+    brokenEl.textContent = '';
+  }
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', function() {
+  updateStreakOnOpen();
+  updateStreakUI();
+});
+// Also run immediately in case DOMContentLoaded already fired
+updateStreakOnOpen();
+updateStreakUI();
+
+// ============================================================
+//  STATISTICS SYSTEM
+// ============================================================
+
+function getStatsData() {
+  var def = { totalXP: 0, sessions: [], bestStreak: 0, langXP: {}, langLevels: {} };
+  try { return JSON.parse(localStorage.getItem('speakly_stats') || 'null') || def; }
+  catch(e) { return def; }
+}
+function saveStatsData(d) { localStorage.setItem('speakly_stats', JSON.stringify(d)); }
+
+function saveSessionStats(lang, cat, level, xp, acc, completed) {
+  var d = getStatsData();
+  d.totalXP = (d.totalXP || 0) + xp;
+
+  // Session history for accuracy chart
+  if (!d.sessions) d.sessions = [];
+  d.sessions.push({ lang: lang, cat: cat, level: level, xp: xp, acc: acc, completed: completed, date: new Date().toISOString() });
+  if (d.sessions.length > 50) d.sessions = d.sessions.slice(-50); // keep last 50
+
+  // Per-language XP
+  if (!d.langXP) d.langXP = {};
+  d.langXP[lang] = (d.langXP[lang] || 0) + xp;
+
+  // Per-language level tracking
+  if (!d.langLevels) d.langLevels = {};
+  if (!d.langLevels[lang]) d.langLevels[lang] = {};
+  if (!d.langLevels[lang][cat]) d.langLevels[lang][cat] = 0;
+  if (completed && level > d.langLevels[lang][cat]) d.langLevels[lang][cat] = level;
+
+  // Best streak
+  var streakD = getStreakData();
+  if (streakD.streak > (d.bestStreak || 0)) d.bestStreak = streakD.streak;
+
+  saveStatsData(d);
+}
+
+// Leaderboard mock data (simulated other users)
+// ── DYNAMIC LEADERBOARD SYSTEM ──
+// Sabhi registered users ek shared key mein store hote hain
+// Har user apne account se login karta hai to uska data update hota hai
+
+var AVATAR_COLORS = ['#5b8dee','#e05b8d','#8de05b','#e0c05b','#5be0cf','#c05be0','#ee8d5b','#5beea0','#ee5b5b','#a05bee'];
+
+function getAllUsers() {
+  try { return JSON.parse(localStorage.getItem('speakly_all_users') || '[]'); }
+  catch(e) { return []; }
+}
+
+function saveAllUsers(users) {
+  localStorage.setItem('speakly_all_users', JSON.stringify(users));
+}
+
+function getCurrentUser() {
+  try { return JSON.parse(localStorage.getItem('speakly_user') || 'null'); }
+  catch(e) { return null; }
+}
+
+// Jab bhi stats save hoti hain, current user ka leaderboard entry bhi update karo
+function updateLeaderboardEntry(totalXP, streak) {
+  var currentUser = getCurrentUser();
+  if (!currentUser) return;
+
+  var users = getAllUsers();
+  var username = currentUser.username || currentUser.name || 'Player';
+  var idx = users.findIndex(function(u) { return u.username === username; });
+
+  var initials = username.slice(0,2).toUpperCase();
+  var colorIdx = Math.abs(username.split('').reduce(function(a,c){ return a + c.charCodeAt(0); }, 0)) % AVATAR_COLORS.length;
+
+  var entry = {
+    username: username,
+    name: currentUser.name || username,
+    initials: initials,
+    color: AVATAR_COLORS[colorIdx],
+    xp: totalXP,
+    streak: streak,
+    lastActive: new Date().toISOString()
+  };
+
+  if (idx >= 0) {
+    users[idx] = entry;
+  } else {
+    users.push(entry);
+  }
+
+  saveAllUsers(users);
+}
+
+// saveSessionStats ke baad leaderboard bhi update karo
+var _origSaveSessionStats = saveSessionStats;
+saveSessionStats = function(lang, cat, level, xp, acc, completed) {
+  _origSaveSessionStats(lang, cat, level, xp, acc, completed);
+  var d = getStatsData();
+  var streakD = getStreakData();
+  updateLeaderboardEntry(d.totalXP || 0, streakD.streak || 0);
+};
+
+// Pehli baar login/dashboard open hone par bhi current user register karo
+(function registerCurrentUserOnLoad() {
+  var currentUser = getCurrentUser();
+  if (!currentUser) return;
+  var d = getStatsData();
+  var streakD = getStreakData();
+  updateLeaderboardEntry(d.totalXP || 0, streakD.streak || 0);
+})();
+
+function openStats() {
+  var menu = document.getElementById('dropdownMenu');
+  if (menu) menu.classList.remove('show');
+  renderStatsPage();
+  goTo('stats');
+}
+
+function renderStatsPage() {
+  var d = getStatsData();
+  var streakD = getStreakData();
+
+  // Summary cards
+  document.getElementById('st-total-xp').textContent = d.totalXP || 0;
+  var sessions = d.sessions || [];
+  document.getElementById('st-lessons').textContent = sessions.length;
+
+  var avgAcc = 0;
+  if (sessions.length > 0) {
+    avgAcc = Math.round(sessions.reduce(function(s, x) { return s + x.acc; }, 0) / sessions.length);
+  }
+  document.getElementById('st-avg-acc').textContent = avgAcc + '%';
+
+  var best = Math.max(streakD.streak || 0, d.bestStreak || 0);
+  document.getElementById('st-streak').textContent = best;
+
+  // Accuracy history bars
+  renderAccBars(sessions);
+
+  // Language breakdown
+  renderLangBreakdown(d);
+
+  // Leaderboard
+  renderLeaderboard(d);
+}
+
+function renderAccBars(sessions) {
+  var wrap = document.getElementById('accBarsWrap');
+  var last10 = sessions.slice(-10);
+  if (last10.length === 0) {
+    wrap.innerHTML = '<div class="acc-empty" style="width:100%">Lesson have not completed yet</div>';
+    return;
+  }
+  wrap.innerHTML = '';
+  var colors = { easy: '#58cc02', medium: '#ffc800', hard: '#ff4b4b' };
+  last10.forEach(function(s, i) {
+    var col = document.createElement('div');
+    col.className = 'acc-bar-col';
+    var barH = Math.max(4, Math.round((s.acc / 100) * 66));
+    var bar = document.createElement('div');
+    bar.className = 'acc-bar';
+    bar.style.height = barH + 'px';
+    bar.style.background = colors[s.cat] || '#58cc02';
+    bar.title = s.lang + ' ' + s.cat + ' L' + s.level + ' — ' + s.acc + '%';
+    var lbl = document.createElement('div');
+    lbl.className = 'acc-bar-lbl';
+    lbl.textContent = s.acc + '%';
+    col.appendChild(bar);
+    col.appendChild(lbl);
+    wrap.appendChild(col);
+  });
+}
+
+function renderLangBreakdown(d) {
+  var wrap = document.getElementById('langBreakdown');
+  wrap.innerHTML = '';
+  var langs = ['English', 'Urdu', 'Spanish'];
+  var flags = { English: '🇬🇧', Urdu: '🇵🇰', Spanish: '🇪🇸' };
+  var cats = ['easy', 'medium', 'hard'];
+
+  langs.forEach(function(lang) {
+    var xp = (d.langXP && d.langXP[lang]) || 0;
+    var row = document.createElement('div');
+    row.className = 'lang-row';
+
+    var top = document.createElement('div');
+    top.className = 'lang-row-top';
+    top.innerHTML = '<span class="lang-row-name">' + (flags[lang] || '') + ' ' + lang + '</span><span class="lang-row-xp">⭐ ' + xp + ' XP</span>';
+    row.appendChild(top);
+
+    var barsDiv = document.createElement('div');
+    barsDiv.className = 'lang-prog-bars';
+
+    cats.forEach(function(cat) {
+      var done = (d.langLevels && d.langLevels[lang] && d.langLevels[lang][cat]) || 0;
+      var pct = Math.round((done / 5) * 100);
+      var db = document.createElement('div');
+      db.className = 'diff-prog';
+      db.innerHTML = '<div class="diff-label">' + cat.charAt(0).toUpperCase() + cat.slice(1) + ' ' + done + '/5</div>'
+        + '<div class="diff-bar-bg"><div class="diff-bar-fill ' + cat + '-fill" style="width:' + pct + '%"></div></div>';
+      barsDiv.appendChild(db);
+    });
+
+    row.appendChild(barsDiv);
+    wrap.appendChild(row);
+  });
+}
+
+function renderLeaderboard(d) {
+  var wrap = document.getElementById('leaderboardWrap');
+  wrap.innerHTML = '';
+
+  var currentUser = getCurrentUser();
+  var myUsername = currentUser ? (currentUser.username || currentUser.name || '') : '';
+
+  var myXP = d.totalXP || 0;
+  var myStreak = (getStreakData().streak) || 0;
+
+  // Sabhi registered users lao
+  var allUsers = getAllUsers();
+
+  // Agar current user list mein nahi to add kar lo
+  var meInList = allUsers.find(function(u) { return u.username === myUsername; });
+  if (!meInList && myUsername) {
+    var colorIdx = Math.abs(myUsername.split('').reduce(function(a,c){ return a + c.charCodeAt(0); },0)) % AVATAR_COLORS.length;
+    allUsers.push({
+      username: myUsername,
+      name: currentUser ? (currentUser.name || myUsername) : myUsername,
+      initials: myUsername.slice(0,2).toUpperCase(),
+      color: AVATAR_COLORS[colorIdx],
+      xp: myXP,
+      streak: myStreak,
+      isMe: true
+    });
+  } else if (meInList) {
+    meInList.xp = myXP;
+    meInList.streak = myStreak;
+  }
+
+  // XP ke hisaab se sort karo
+  allUsers.sort(function(a, b) { return b.xp - a.xp; });
+
+  if (allUsers.length === 0) {
+    wrap.innerHTML = '<div style="color:#8899bb;text-align:center;padding:20px 0;font-size:.85rem;">No user registered yet — do sign and rank up first! 🏆</div>';
+    return;
+  }
+
+  // Reset button
+  var resetRow = document.createElement('div');
+  resetRow.style.cssText = 'text-align:right;margin-bottom:6px;';
+  resetRow.innerHTML = '<span style="font-size:.7rem;color:#8899bb;cursor:pointer;text-decoration:underline;" onclick="confirmResetLeaderboard()">🗑 Leaderboard reset karo (test only)</span>';
+  wrap.appendChild(resetRow);
+
+  allUsers.forEach(function(p, i) {
+    var isMe = p.username === myUsername;
+    var row = document.createElement('div');
+    row.className = 'lb-row' + (isMe ? ' me' : '');
+
+    var rankIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.';
+    var rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+
+    // Display name: prefer username, fallback to name
+    var displayName = p.username || p.name || 'Player';
+    var initials = (p.initials || displayName.slice(0,2)).toUpperCase();
+    var color = p.color || '#8899bb';
+
+    row.innerHTML =
+      '<div class="lb-rank ' + rankClass + '">' + rankIcon + '</div>' +
+      '<div class="lb-avatar" style="background:' + color + '22;color:' + color + '">' + initials + '</div>' +
+      '<div class="lb-name">' + displayName +
+        (isMe ? '<span class="lb-you-badge">YOU</span>' : '') +
+      '</div>' +
+      '<div style="text-align:right">' +
+        '<div class="lb-xp">⭐ ' + (p.xp || 0) + '</div>' +
+        '<div class="lb-streak">🔥 ' + (p.streak || 0) + ' days</div>' +
+      '</div>';
+
+    wrap.appendChild(row);
+  });
+}
+
+function confirmResetLeaderboard() {
+  if (confirm('Sab users ka leaderboard data delete ho jaega. Confirm?')) {
+    localStorage.removeItem('speakly_all_users');
+    renderLeaderboard(getStatsData());
+  }
+}
+
+// Agar user menu ke bahar click kare to menu band ho jaye
+window.onclick = function(event) {
+    if (!event.target.matches('.menu-icon') && !event.target.matches('.menu-icon span')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
+}
+
+const API_KEY = "AIzaSyBicw4k3cIHUuvroEvNnS3FuidK28aN0r0"; // <--- Yahan apni asli API Key lagayein
+
+function toggleChat() {
+    const chatWin = document.getElementById('chat-window');
+    const overlay = document.getElementById('chat-overlay');
+    const isHidden = (chatWin.style.display === 'none' || chatWin.style.display === '');
+    
+    chatWin.style.display = isHidden ? 'flex' : 'none';
+    overlay.style.display = isHidden ? 'block' : 'none';
+}
+
+async function sendMessage() {
+    const input = document.getElementById('user-input');
+    const body = document.getElementById('chat-body');
+    const msg = input.value.trim();
+    
+    if (!msg) return;
+
+    // User message display
+    body.innerHTML += `<div class="message user-msg">${msg}</div>`;
+    input.value = "";
+    body.scrollTop = body.scrollHeight;
+
+    // Loading indicator
+    const loadingId = "load-" + Date.now();
+    body.innerHTML += `<div class="message bot-msg" id="${loadingId}"><span class="typing-dots">Speakly AI soch raha hai...</span></div>`;
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: `You are Speakly AI. User says: ${msg}. Reply in the same language (Urdu or English) naturally.` }] }]
+            })
+        });
+
+        const data = await response.json();
+        
+        // Accurate data path for Gemini API
+        if (data.candidates && data.candidates[0].content) {
+            const aiText = data.candidates[0].content.parts[0].text;
+            document.getElementById(loadingId).innerText = aiText;
+        } else {
+            document.getElementById(loadingId).innerText = "Maaf kijiyega, main samajh nahi paya. Dobara likhein?";
+        }
+    } catch (error) {
+        console.error("API Error:", error);
+        document.getElementById(loadingId).innerText = "Connection issue! Please check your API Key.";
+    }
+    body.scrollTop = body.scrollHeight;
+}
+
+function handleKeyPress(e) {
+    if (e.key === 'Enter') sendMessage();
+}
+
+</script>
+</body>
+</html>

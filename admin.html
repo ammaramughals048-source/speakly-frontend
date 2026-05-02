@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Speakly — Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0d14;
+      --panel: #111520;
+      --panel2: #161c2e;
+      --border: #1e2a45;
+      --accent: #4f8ef7;
+      --accent2: #7c3aed;
+      --green: #22d3a0;
+      --red: #f43f5e;
+      --yellow: #fbbf24;
+      --text: #e8edf8;
+      --muted: #5a6a8a;
+      --card-glow: rgba(79,142,247,0.07);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 240px;
+      min-height: 100vh;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+      transition: transform 0.3s;
+    }
+    .sidebar-logo {
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo .brand {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+    .sidebar-logo .badge {
+      font-size: 10px;
+      background: var(--accent2);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-left: 8px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .nav-section {
+      padding: 16px 12px 0;
+      flex: 1;
+    }
+    .nav-label {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 12px;
+      margin-bottom: 6px;
+      margin-top: 16px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+      margin-bottom: 2px;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: var(--panel2); color: var(--text); }
+    .nav-item.active {
+      background: rgba(79,142,247,0.12);
+      color: var(--accent);
+      border: 1px solid rgba(79,142,247,0.2);
+    }
+    .nav-item .icon { font-size: 17px; width: 20px; text-align: center; }
+    .nav-item .dot {
+      margin-left: auto;
+      width: 8px; height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+    }
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .admin-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      background: var(--panel2);
+    }
+    .admin-avatar {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .admin-name { font-size: 13px; font-weight: 600; }
+    .admin-role { font-size: 11px; color: var(--muted); }
+    .logout-btn {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    .logout-btn:hover { color: var(--red); }
+
+    /* MAIN */
+    .main {
+      margin-left: 240px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .topbar {
+      height: 64px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      gap: 16px;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .topbar-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .search-box input {
+      background: none; border: none; outline: none;
+      color: var(--text); font-size: 13px; width: 160px;
+    }
+    .search-box input::placeholder { color: var(--muted); }
+    .notif-btn {
+      position: relative;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 17px;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .notif-btn:hover { color: var(--text); border-color: var(--accent); }
+    .notif-dot {
+      position: absolute; top: 7px; right: 7px;
+      width: 7px; height: 7px;
+      background: var(--red);
+      border-radius: 50%;
+      border: 2px solid var(--panel);
+    }
+
+    /* CONTENT */
+    .content {
+      padding: 28px;
+      flex: 1;
+    }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* STATS GRID */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .stat-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .stat-card.blue::before { background: linear-gradient(90deg, var(--accent), #60a5fa); }
+    .stat-card.purple::before { background: linear-gradient(90deg, var(--accent2), #a78bfa); }
+    .stat-card.green::before { background: linear-gradient(90deg, var(--green), #6ee7b7); }
+    .stat-card.red::before { background: linear-gradient(90deg, var(--red), #fda4af); }
+    .stat-icon {
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      margin-bottom: 14px;
+    }
+    .blue .stat-icon { background: rgba(79,142,247,0.12); }
+    .purple .stat-icon { background: rgba(124,58,237,0.12); }
+    .green .stat-icon { background: rgba(34,211,160,0.12); }
+    .red .stat-icon { background: rgba(244,63,94,0.12); }
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label { font-size: 12px; color: var(--muted); }
+    .stat-change {
+      position: absolute; top: 20px; right: 20px;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .up { background: rgba(34,211,160,0.12); color: var(--green); }
+    .down { background: rgba(244,63,94,0.1); color: var(--red); }
+
+    /* GRID 2-COL */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+    /* CARDS */
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .card-action {
+      font-size: 12px;
+      color: var(--accent);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .card-body { padding: 20px; }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left;
+      font-size: 11px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 16px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 14px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--panel2); }
+    .user-cell { display: flex; align-items: center; gap: 10px; }
+    .u-avatar {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .u-name { font-weight: 500; font-size: 13px; }
+    .u-email { font-size: 11px; color: var(--muted); }
+    .badge-pill {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .pill-green { background: rgba(34,211,160,0.12); color: var(--green); }
+    .pill-yellow { background: rgba(251,191,36,0.12); color: var(--yellow); }
+    .pill-red { background: rgba(244,63,94,0.1); color: var(--red); }
+    .pill-blue { background: rgba(79,142,247,0.12); color: var(--accent); }
+    .pill-purple { background: rgba(124,58,237,0.12); color: #a78bfa; }
+    .action-btns { display: flex; gap: 6px; }
+    .btn-icon {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--panel2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--muted);
+    }
+    .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-icon.danger:hover { border-color: var(--red); color: var(--red); }
+
+    /* MINI CHART bars */
+    .mini-chart { display: flex; align-items: flex-end; gap: 4px; height: 60px; }
+    .bar {
+      flex: 1;
+      border-radius: 4px 4px 0 0;
+      background: rgba(79,142,247,0.2);
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+    .bar:hover { background: var(--accent); }
+    .bar.active { background: var(--accent); }
+
+    /* LANG BARS */
+    .lang-row { margin-bottom: 14px; }
+    .lang-top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+    .lang-bar-bg {
+      height: 6px; background: var(--panel2);
+      border-radius: 10px; overflow: hidden;
+    }
+    .lang-bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 1s ease;
+    }
+
+    /* ACTIVITY */
+    .activity-item {
+      display: flex; gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .act-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .act-text { font-size: 13px; line-height: 1.5; }
+    .act-time { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #3a7de0; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-danger {
+      background: rgba(244,63,94,0.12);
+      color: var(--red);
+      border: 1px solid rgba(244,63,94,0.2);
+    }
+    .btn-danger:hover { background: var(--red); color: #fff; }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      width: 420px;
+      max-width: 95vw;
+      animation: modalIn 0.2s ease;
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .modal-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+    .form-group { margin-bottom: 14px; }
+    .form-label { font-size: 12px; color: var(--muted); margin-bottom: 5px; display: block; }
+    .form-input {
+      width: 100%;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: var(--accent); }
+    select.form-input { cursor: pointer; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--green);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 13px;
+      display: flex; align-items: center; gap: 10px;
+      transform: translateX(120%);
+      transition: transform 0.3s;
+      z-index: 999;
+    }
+    .toast.show { transform: translateX(0); }
+    .toast.error { border-left-color: var(--red); }
+
+    /* LOADER */
+    .loading-row td {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.4s ease both; }
+    .delay-1 { animation-delay: 0.05s; }
+    .delay-2 { animation-delay: 0.1s; }
+    .delay-3 { animation-delay: 0.15s; }
+    .delay-4 { animation-delay: 0.2s; }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--muted);
+    }
+    .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+
+    /* ANNOUNCEMENT FORM */
+    .announce-box {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    textarea.form-input {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .progress-ring {
+      transform: rotate(-90deg);
+    }
+    .ring-bg { fill: none; stroke: var(--border); stroke-width: 6; }
+    .ring-fill { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round;
+      transition: stroke-dashoffset 1s ease; }
+
+    .server-status {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px;
+    }
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <span class="brand">Speakly</span><span class="badge">Admin</span>
+  </div>
+  <nav class="nav-section">
+    <div class="nav-label">Main</div>
+    <a class="nav-item active" onclick="showSection('overview',this)">
+      <span class="icon">📊</span> Overview
+    </a>
+    <a class="nav-item" onclick="showSection('users',this)">
+      <span class="icon">👥</span> Users
+    </a>
+    <a class="nav-item" onclick="showSection('analytics',this)">
+      <span class="icon">📈</span> Analytics
+    </a>
+
+    <div class="nav-label">Management</div>
+    <a class="nav-item" onclick="showSection('languages',this)">
+      <span class="icon">🌍</span> Languages
+    </a>
+    <a class="nav-item" onclick="showSection('announcements',this)">
+      <span class="icon">📢</span> Announcements <span class="dot"></span>
+    </a>
+
+    <div class="nav-label">System</div>
+    <a class="nav-item" onclick="showSection('settings',this)">
+      <span class="icon">⚙️</span> Settings
+    </a>
+    <a class="nav-item" href="index.html">
+      <span class="icon">🏠</span> Go to Site
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-info">
+      <div class="admin-avatar">A</div>
+      <div>
+        <div class="admin-name" id="adminName">Admin</div>
+        <div class="admin-role">Super Admin</div>
+      </div>
+      <button class="logout-btn" onclick="logout()" title="Logout">⏻</button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <div>
+      <div class="topbar-title" id="pageTitle">Overview</div>
+      <div class="topbar-sub" id="pageDate"></div>
+    </div>
+    <div class="topbar-right">
+      <div class="search-box">
+        <span>🔍</span>
+        <input type="text" placeholder="Search users..." id="globalSearch" oninput="searchUsers()"/>
+      </div>
+      <div class="notif-btn" onclick="showToast('No new notifications','success')">
+        🔔<span class="notif-dot"></span>
+      </div>
+      <div class="server-status">
+        <span class="status-dot"></span>
+        <span>Server Live</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ===== OVERVIEW ===== -->
+    <section class="section active" id="section-overview">
+      <div class="stats-grid">
+        <div class="stat-card blue fade-up">
+          <span class="stat-change up" id="chg-users">↑ +12%</span>
+          <div class="stat-icon">👤</div>
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-card green fade-up delay-1">
+          <span class="stat-change up" id="chg-active">↑ +8%</span>
+          <div class="stat-icon">✅</div>
+          <div class="stat-value" id="stat-active">—</div>
+          <div class="stat-label">Active Users</div>
+        </div>
+        <div class="stat-card purple fade-up delay-2">
+          <span class="stat-change up">↑ +3</span>
+          <div class="stat-icon">🌍</div>
+          <div class="stat-value" id="stat-langs">8</div>
+          <div class="stat-label">Languages</div>
+        </div>
+        <div class="stat-card red fade-up delay-3">
+          <span class="stat-change down">↓ -2%</span>
+          <div class="stat-icon">📅</div>
+          <div class="stat-value" id="stat-today">—</div>
+          <div class="stat-label">Joined Today</div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="card fade-up">
+          <div class="card-header">
+            <span class="card-title">Weekly Signups</span>
+            <span class="card-action" onclick="loadUsers()">Refresh</span>
+          </div>
+          <div class="card-body">
+            <div class="mini-chart" id="weekChart">
+              <div class="bar active" style="height:40%"></div>
+              <div class="bar" style="height:55%"></div>
+              <div class="bar" style="height:35%"></div>
+              <div class="bar" style="height:70%"></div>
+              <div class="bar" style="height:60%"></div>
+              <div class="bar" style="height:85%"></div>
+              <div class="bar" style="height:50%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:8px;">
+              <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card fade-up delay-1">
+          <div class="card-header">
+            <span class="card-title">Server Info</span>
+          </div>
+          <div class="card-body">
+            <div style="margin-bottom:14px;">
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;">
+                <span>API Server</span><span class="badge-pill pill-green">Online</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;">
+                <span>Database</span><span class="badge-pill pill-green">Connected</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;">
+                <span>Port</span><span style="color:var(--accent);font-weight:600;">5000</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;">
+                <span>DB</span><span style="color:var(--accent);font-weight:600;">speaklyDB</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card fade-up">
+        <div class="card-header">
+          <span class="card-title">Recent Users</span>
+          <a class="card-action" onclick="showSection('users', document.querySelector('[onclick*=users]'))">View All →</a>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Language</th>
+                <th>Level</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recentUsersTable">
+              <tr class="loading-row"><td colspan="6">⏳ Loading users...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== USERS ===== -->
+    <section class="section" id="section-users">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div>
+          <h2 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;">All Users</h2>
+          <p style="font-size:13px;color:var(--muted);margin-top:3px;">Manage registered users</p>
+        </div>
+        <button class="btn btn-primary" onclick="openAddUserModal()">➕ Add User</button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-outline" onclick="filterUsers('all')" id="fBtn-all" style="font-size:12px;padding:6px 14px;">All</button>
+            <button class="btn btn-outline" onclick="filterUsers('active')" id="fBtn-active" style="font-size:12px;padding:6px 14px;">Active</button>
+            <button class="btn btn-outline" onclick="filterUsers('inactive')" id="fBtn-inactive" style="font-size:12px;padding:6px 14px;">Inactive</button>
+          </div>
+          <span id="userCountBadge" class="badge-pill pill-blue">0 users</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Language</th>
+                <th>Level</th>
+                <th>XP</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="allUsersTable">
+              <tr class="loading-row"><td colspan="7">⏳ Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ANALYTICS ===== -->
+    <section class="section" id="section-analytics">
+      <h2 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:20px;">Analytics</h2>
+      <div class="stats-grid" style="margin-bottom:24px;">
+        <div class="stat-card blue">
+          <div class="stat-icon">📚</div>
+          <div class="stat-value" id="ana-sessions">—</div>
+          <div class="stat-label">Total Sessions</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">⏱️</div>
+          <div class="stat-value">42m</div>
+          <div class="stat-label">Avg. Session Time</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-value" id="ana-xp">—</div>
+          <div class="stat-label">Total XP Earned</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon">📉</div>
+          <div class="stat-value">18%</div>
+          <div class="stat-label">Drop-off Rate</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Language Popularity</span></div>
+          <div class="card-body" id="langStats">
+            <div class="lang-row">
+              <div class="lang-top"><span>🇬🇧 English</span><span>72%</span></div>
+              <div class="lang-bar-bg"><div class="lang-bar-fill" style="width:72%"></div></div>
+            </div>
+            <div class="lang-row">
+              <div class="lang-top"><span>🇪🇸 Spanish</span><span>54%</span></div>
+              <div class="lang-bar-bg"><div class="lang-bar-fill" style="width:54%"></div></div>
+            </div>
+            <div class="lang-row">
+              <div class="lang-top"><span>🇫🇷 French</span><span>38%</span></div>
+              <div class="lang-bar-bg"><div class="lang-bar-fill" style="width:38%"></div></div>
+            </div>
+            <div class="lang-row">
+              <div class="lang-top"><span>🇩🇪 German</span><span>27%</span></div>
+              <div class="lang-bar-bg"><div class="lang-bar-fill" style="width:27%"></div></div>
+            </div>
+            <div class="lang-row">
+              <div class="lang-top"><span>🇯🇵 Japanese</span><span>19%</span></div>
+              <div class="lang-bar-bg"><div class="lang-bar-fill" style="width:19%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Recent Activity</span></div>
+          <div class="card-body" id="activityFeed">
+            <div class="activity-item">
+              <div class="act-dot" style="background:var(--green)"></div>
+              <div><div class="act-text">New user registered</div><div class="act-time">2 min ago</div></div>
+            </div>
+            <div class="activity-item">
+              <div class="act-dot" style="background:var(--accent)"></div>
+              <div><div class="act-text">Lesson completed — Spanish B2</div><div class="act-time">14 min ago</div></div>
+            </div>
+            <div class="activity-item">
+              <div class="act-dot" style="background:var(--yellow)"></div>
+              <div><div class="act-text">User reported an issue</div><div class="act-time">1 hr ago</div></div>
+            </div>
+            <div class="activity-item">
+              <div class="act-dot" style="background:var(--accent2)"></div>
+              <div><div class="act-text">Streak milestone: 30 days 🎉</div><div class="act-time">3 hrs ago</div></div>
+            </div>
+            <div class="activity-item">
+              <div class="act-dot" style="background:var(--red)"></div>
+              <div><div class="act-text">Password reset requested</div><div class="act-time">5 hrs ago</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== LANGUAGES ===== -->
+    <section class="section" id="section-languages">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <h2 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;">Languages</h2>
+        <button class="btn btn-primary">➕ Add Language</button>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Available Languages</span></div>
+          <div class="card-body">
+            <table>
+              <thead><tr><th>Language</th><th>Learners</th><th>Levels</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>🇬🇧 English</td><td>1,240</td><td>6</td><td><span class="badge-pill pill-green">Active</span></td></tr>
+                <tr><td>🇪🇸 Spanish</td><td>930</td><td>5</td><td><span class="badge-pill pill-green">Active</span></td></tr>
+                <tr><td>🇫🇷 French</td><td>650</td><td>5</td><td><span class="badge-pill pill-green">Active</span></td></tr>
+                <tr><td>🇩🇪 German</td><td>460</td><td>4</td><td><span class="badge-pill pill-green">Active</span></td></tr>
+                <tr><td>🇯🇵 Japanese</td><td>325</td><td>3</td><td><span class="badge-pill pill-yellow">Beta</span></td></tr>
+                <tr><td>🇨🇳 Chinese</td><td>210</td><td>2</td><td><span class="badge-pill pill-yellow">Beta</span></td></tr>
+                <tr><td>🇮🇹 Italian</td><td>145</td><td>2</td><td><span class="badge-pill pill-red">Coming Soon</span></td></tr>
+                <tr><td>🇦🇪 Arabic</td><td>90</td><td>1</td><td><span class="badge-pill pill-red">Coming Soon</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">CEFR Level Distribution</span></div>
+          <div class="card-body">
+            <div class="lang-row">
+              <div class="lang-top"><span>A1 – Beginner</span><span>34%</span></div>
+              <div class="lang-bar-bg"><div class="lang-bar-fill" style="width:34%;background:var(--green)"></div></div>
+            </div>
+            <div class="lang-row">
+              <div class="lang-top"><span>A2 – Elementary</span><span>26%</span></div>
+              <div class="lang-bar-bg"><div class="lang-bar-fill" style="width:26%;background:var(--green)"></div></div>
+            </div>
+            <div class="lang-row">
+              <div class="lang-top"><span>B1 – Intermediate</span><span>19%</span></div>
+              <div class="lang-bar-bg"><div class="lang-bar-fill" style="width:19%"></div></div>
+            </div>
+            <div class="lang-row">
+              <div class="lang-top"><span>B2 – Upper-Inter</span><span>13%</span></div>
+              <div class="lang-bar-bg"><div class="lang-bar-fill" style="width:13%"></div></div>
+            </div>
+            <div class="lang-row">
+              <div class="lang-top"><span>C1 – Advanced</span><span>6%</span></div>
+              <div class="lang-bar-bg"><div class="lang-bar-fill" style="width:6%;background:var(--accent2)"></div></div>
+            </div>
+            <div class="lang-row">
+              <div class="lang-top"><span>C2 – Mastery</span><span>2%</span></div>
+              <div class="lang-bar-bg"><div class="lang-bar-fill" style="width:2%;background:var(--accent2)"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ANNOUNCEMENTS ===== -->
+    <section class="section" id="section-announcements">
+      <h2 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:20px;">Announcements</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Send Announcement</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Title</label>
+              <input class="form-input" id="ann-title" placeholder="e.g. New Feature Available!" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Message</label>
+              <textarea class="form-input" id="ann-body" placeholder="Write your announcement..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Target</label>
+              <select class="form-input" id="ann-target">
+                <option value="all">All Users</option>
+                <option value="active">Active Users</option>
+                <option value="new">New Users (last 7 days)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type</label>
+              <select class="form-input" id="ann-type">
+                <option>Info</option>
+                <option>Update</option>
+                <option>Warning</option>
+                <option>Celebration 🎉</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="sendAnnouncement()" style="width:100%;justify-content:center;margin-top:8px;">📢 Send Announcement</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Past Announcements</span></div>
+          <div class="card-body" id="pastAnnouncements">
+            <div class="activity-item">
+              <div class="act-dot" style="background:var(--accent)"></div>
+              <div>
+                <div class="act-text" style="font-weight:600;">🚀 Speakly v2.0 is live!</div>
+                <div class="act-time">Sent to All Users · 3 days ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="act-dot" style="background:var(--yellow)"></div>
+              <div>
+                <div class="act-text" style="font-weight:600;">⚠️ Scheduled Maintenance</div>
+                <div class="act-time">Sent to All Users · 1 week ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="act-dot" style="background:var(--green)"></div>
+              <div>
+                <div class="act-text" style="font-weight:600;">🎉 Welcome to Speakly!</div>
+                <div class="act-time">Sent to New Users · 2 weeks ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SETTINGS ===== -->
+    <section class="section" id="section-settings">
+      <h2 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:20px;">Settings</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">API Configuration</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Backend URL</label>
+              <input class="form-input" id="apiUrl" value="http://localhost:5000" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">JWT Secret (masked)</label>
+              <input class="form-input" type="password" value="supersecretkey" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">MongoDB URI</label>
+              <input class="form-input" type="password" value="mongodb+srv://..." />
+            </div>
+            <button class="btn btn-primary" onclick="saveSettings()" style="width:100%;justify-content:center;margin-top:8px;">💾 Save Settings</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Admin Account</span></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Admin Name</label>
+              <input class="form-input" id="settingName" placeholder="Your name" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <input class="form-input" type="password" placeholder="Leave blank to keep current" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Danger Zone</label>
+              <button class="btn btn-danger" style="width:100%;justify-content:center;" onclick="showToast('Action disabled in demo','error')">🗑️ Delete All Test Users</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /content -->
+</main>
+
+<!-- ADD USER MODAL -->
+<div class="modal-overlay" id="addUserModal">
+  <div class="modal">
+    <div class="modal-title">➕ Add New User</div>
+    <div class="modal-sub">Create a new user account manually</div>
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input class="form-input" id="newUserName" placeholder="e.g. Ali Hassan" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" type="email" id="newUserEmail" placeholder="ali@example.com" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="newUserPass" placeholder="Min 6 characters" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Language</label>
+      <select class="form-input" id="newUserLang">
+        <option>English</option><option>Spanish</option><option>French</option>
+        <option>German</option><option>Japanese</option><option>Chinese</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('addUserModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addUser()">Create User</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <div class="modal-title">⚠️ Delete User</div>
+    <div class="modal-sub">This action cannot be undone. The user and all their data will be removed.</div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('deleteModal')">Cancel</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span id="toastIcon">✅</span>
+  <span id="toastMsg">Action completed</span>
+</div>
+
+<script>
+  const API = localStorage.getItem('speakly_api') || 'http://localhost:5000';
+  const TOKEN = localStorage.getItem('token');
+  let allUsers = [];
+  let filterState = 'all';
+
+  // ─── INIT ────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    const d = new Date();
+    document.getElementById('pageDate').textContent =
+      d.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    const name = localStorage.getItem('adminName') || 'Admin';
+    document.getElementById('adminName').textContent = name;
+    document.getElementById('settingName').value = name;
+    loadUsers();
+  });
+
+  // ─── NAVIGATION ──────────────────────────────────────
+  function showSection(id, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('section-' + id).classList.add('active');
+    if (el) el.classList.add('active');
+    const titles = {
+      overview: 'Overview', users: 'User Management',
+      analytics: 'Analytics', languages: 'Languages',
+      announcements: 'Announcements', settings: 'Settings'
+    };
+    document.getElementById('pageTitle').textContent = titles[id] || id;
+    if (id === 'users') renderUsersTable(allUsers);
+  }
+
+  // ─── LOAD USERS ──────────────────────────────────────
+  async function loadUsers() {
+    try {
+      const headers = TOKEN ? { Authorization: 'Bearer ' + TOKEN } : {};
+      const res = await fetch(API + '/api/admin/users', { headers });
+      if (!res.ok) throw new Error('API error ' + res.status);
+      const data = await res.json();
+      allUsers = data.users || data || [];
+      updateStats(allUsers);
+      renderRecentTable(allUsers.slice(0, 6));
+      renderUsersTable(allUsers);
+    } catch (e) {
+      // Demo mode with sample data
+      allUsers = generateSampleUsers();
+      updateStats(allUsers);
+      renderRecentTable(allUsers.slice(0, 6));
+      renderUsersTable(allUsers);
+    }
+  }
+
+  function generateSampleUsers() {
+    const names = ['Ali Hassan', 'Sara Khan', 'Ahmed Raza', 'Fatima Malik', 'Usman Ali',
+      'Ayesha Noor', 'Bilal Chaudhry', 'Zara Sheikh', 'Hassan Iqbal', 'Maryam Tariq'];
+    const langs = ['English','Spanish','French','German','Japanese'];
+    const levels = ['A1','A2','B1','B2','C1'];
+    const colors = ['#4f8ef7','#22d3a0','#7c3aed','#fbbf24','#f43f5e','#06b6d4'];
+    return names.map((name, i) => ({
+      _id: 'demo_' + i,
+      name,
+      email: name.toLowerCase().replace(' ','.')+`@speakly.com`,
+      language: langs[i % langs.length],
+      level: levels[i % levels.length],
+      xp: Math.floor(Math.random() * 5000),
+      isActive: Math.random() > 0.3,
+      createdAt: new Date(Date.now() - Math.random() * 30 * 86400000).toISOString(),
+      _color: colors[i % colors.length]
+    }));
+  }
+
+  function updateStats(users) {
+    document.getElementById('stat-total').textContent = users.length;
+    const active = users.filter(u => u.isActive !== false).length;
+    document.getElementById('stat-active').textContent = active;
+    const today = users.filter(u => {
+      const d = new Date(u.createdAt);
+      const now = new Date();
+      return d.toDateString() === now.toDateString();
+    }).length;
+    document.getElementById('stat-today').textContent = today;
+    document.getElementById('ana-sessions').textContent = (users.length * 3).toLocaleString();
+    document.getElementById('ana-xp').textContent =
+      users.reduce((s, u) => s + (u.xp || 0), 0).toLocaleString();
+    document.getElementById('userCountBadge').textContent = users.length + ' users';
+  }
+
+  // ─── RENDER TABLES ───────────────────────────────────
+  function renderRecentTable(users) {
+    const tbody = document.getElementById('recentUsersTable');
+    if (!users.length) {
+      tbody.innerHTML = '<tr class="loading-row"><td colspan="6">No users found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = users.map(u => userRow(u, false)).join('');
+  }
+
+  function renderUsersTable(users) {
+    const tbody = document.getElementById('allUsersTable');
+    if (!users.length) {
+      tbody.innerHTML = '<tr class="loading-row"><td colspan="7">No users found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = users.map(u => userRow(u, true)).join('');
+  }
+
+  function userRow(u, full) {
+    const initials = (u.name || 'U').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+    const color = u._color || '#4f8ef7';
+    const status = u.isActive !== false ? '<span class="badge-pill pill-green">Active</span>' : '<span class="badge-pill pill-red">Inactive</span>';
+    const level = u.level ? `<span class="badge-pill pill-blue">${u.level}</span>` : '—';
+    const date = u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+    const xpCol = full ? `<td>${(u.xp||0).toLocaleString()} XP</td>` : '';
+    return `<tr>
+      <td><div class="user-cell">
+        <div class="u-avatar" style="background:${color}">${initials}</div>
+        <div><div class="u-name">${u.name||'Unknown'}</div><div class="u-email">${u.email||''}</div></div>
+      </div></td>
+      <td>${u.language||'—'}</td>
+      <td>${level}</td>
+      ${xpCol}
+      <td>${status}</td>
+      <td>${date}</td>
+      <td><div class="action-btns">
+        <div class="btn-icon" onclick="toggleStatus('${u._id}')" title="Toggle Status">🔄</div>
+        <div class="btn-icon danger" onclick="confirmDelete('${u._id}')" title="Delete">🗑️</div>
+      </div></td>
+    </tr>`;
+  }
+
+  // ─── FILTER ──────────────────────────────────────────
+  function filterUsers(state) {
+    filterState = state;
+    ['all','active','inactive'].forEach(s => {
+      document.getElementById('fBtn-'+s).classList.toggle('btn-primary', s === state);
+    });
+    const filtered = state === 'all' ? allUsers
+      : state === 'active' ? allUsers.filter(u => u.isActive !== false)
+      : allUsers.filter(u => u.isActive === false);
+    renderUsersTable(filtered);
+  }
+
+  function searchUsers() {
+    const q = document.getElementById('globalSearch').value.toLowerCase();
+    if (!q) { renderUsersTable(allUsers); return; }
+    const filtered = allUsers.filter(u =>
+      (u.name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q));
+    renderUsersTable(filtered);
+  }
+
+  // ─── ADD USER ─────────────────────────────────────────
+  function openAddUserModal() { document.getElementById('addUserModal').classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  async function addUser() {
+    const name = document.getElementById('newUserName').value.trim();
+    const email = document.getElementById('newUserEmail').value.trim();
+    const password = document.getElementById('newUserPass').value;
+    const language = document.getElementById('newUserLang').value;
+    if (!name || !email || !password) { showToast('Please fill all fields','error'); return; }
+    try {
+      const res = await fetch(API + '/api/auth/register', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ name, email, password, language })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Error');
+      closeModal('addUserModal');
+      showToast(`User "${name}" created!`, 'success');
+      loadUsers();
+    } catch(e) {
+      // Demo mode
+      const newUser = {
+        _id: 'demo_new_' + Date.now(),
+        name, email, language, level: 'A1', xp: 0,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        _color: '#4f8ef7'
+      };
+      allUsers.unshift(newUser);
+      updateStats(allUsers);
+      renderUsersTable(allUsers);
+      renderRecentTable(allUsers.slice(0,6));
+      closeModal('addUserModal');
+      showToast(`User "${name}" added (demo mode)`, 'success');
+    }
+  }
+
+  // ─── DELETE USER ─────────────────────────────────────
+  let pendingDeleteId = null;
+  function confirmDelete(id) {
+    pendingDeleteId = id;
+    document.getElementById('deleteModal').classList.add('open');
+    document.getElementById('confirmDeleteBtn').onclick = deleteUser;
+  }
+
+  async function deleteUser() {
+    const id = pendingDeleteId;
+    try {
+      const res = await fetch(API + '/api/admin/users/' + id, {
+        method: 'DELETE',
+        headers: { Authorization: 'Bearer ' + TOKEN }
+      });
+      if (!res.ok) throw new Error();
+      showToast('User deleted','success');
+    } catch {
+      showToast('User removed (demo mode)','success');
+    }
+    allUsers = allUsers.filter(u => u._id !== id);
+    updateStats(allUsers);
+    renderUsersTable(allUsers);
+    renderRecentTable(allUsers.slice(0,6));
+    closeModal('deleteModal');
+  }
+
+  // ─── TOGGLE STATUS ───────────────────────────────────
+  function toggleStatus(id) {
+    const u = allUsers.find(u => u._id === id);
+    if (!u) return;
+    u.isActive = !u.isActive;
+    updateStats(allUsers);
+    renderUsersTable(filterState === 'all' ? allUsers
+      : filterState === 'active' ? allUsers.filter(u => u.isActive)
+      : allUsers.filter(u => !u.isActive));
+    renderRecentTable(allUsers.slice(0,6));
+    showToast(`User ${u.isActive ? 'activated' : 'deactivated'}`, 'success');
+  }
+
+  // ─── ANNOUNCEMENTS ───────────────────────────────────
+  function sendAnnouncement() {
+    const title = document.getElementById('ann-title').value.trim();
+    const body = document.getElementById('ann-body').value.trim();
+    if (!title || !body) { showToast('Fill in title and message','error'); return; }
+    const feed = document.getElementById('pastAnnouncements');
+    const item = document.createElement('div');
+    item.className = 'activity-item';
+    item.innerHTML = `<div class="act-dot" style="background:var(--accent)"></div>
+      <div><div class="act-text" style="font-weight:600;">📢 ${title}</div>
+      <div class="act-time">Sent to ${document.getElementById('ann-target').options[document.getElementById('ann-target').selectedIndex].text} · Just now</div></div>`;
+    feed.prepend(item);
+    document.getElementById('ann-title').value = '';
+    document.getElementById('ann-body').value = '';
+    showToast('Announcement sent!','success');
+  }
+
+  // ─── SETTINGS ────────────────────────────────────────
+  function saveSettings() {
+    const url = document.getElementById('apiUrl').value.trim();
+    const name = document.getElementById('settingName').value.trim();
+    if (url) localStorage.setItem('speakly_api', url);
+    if (name) {
+      localStorage.setItem('adminName', name);
+      document.getElementById('adminName').textContent = name;
+    }
+    showToast('Settings saved!','success');
+  }
+
+  // ─── LOGOUT ──────────────────────────────────────────
+  function logout() {
+    if (confirm('Log out of admin panel?')) {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    }
+  }
+
+  // ─── TOAST ───────────────────────────────────────────
+  let toastTimer;
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    document.getElementById('toastIcon').textContent = type === 'success' ? '✅' : '❌';
+    t.className = 'toast ' + (type === 'error' ? 'error' : '') + ' show';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+  });
+</script>
+</body>
+</html>

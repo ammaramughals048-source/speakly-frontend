@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <title>Speakly</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0c1021;
+            --neon: #00f2fe;
+            --yellow: #ffcc00;
+            --neon-glow: rgba(0,242,254,0.35);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body,html{background:var(--bg);color:#fff;font-family:'Nunito',sans-serif;height:100vh;display:flex;justify-content:center;align-items:center;overflow:hidden;}
+
+        /* Grid bg */
+        body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,242,254,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,242,254,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
+
+        #intro-screen{position:absolute;display:flex;flex-direction:column;align-items:center;gap:0;}
+        .word{display:flex;gap:10px;font-family:'Baloo 2',cursive;font-size:4.5rem;font-weight:800;}
+        .letter{color:rgba(255,255,255,0.08);transition:color .3s,text-shadow .3s;}
+        .active{color:var(--neon);text-shadow:0 0 25px var(--neon),0 0 60px var(--neon-glow);}
+        #jumper-kuku{width:38px;height:46px;background:var(--yellow);border-radius:50%;border:3px solid #000;position:absolute;top:-55px;left:0;transition:0.38s cubic-bezier(0.175,0.885,0.32,1.275);box-shadow:0 0 12px rgba(255,204,0,.5);}
+
+        #chat-screen{display:none;text-align:center;max-width:600px;animation:fadeIn .8s ease-in;}
+        .kuku-big{width:150px;height:180px;background:var(--yellow);border-radius:50% 50% 45% 45%;border:5px solid #000;margin:0 auto 30px;position:relative;animation:float 3s ease-in-out infinite;box-shadow:0 0 30px rgba(255,204,0,.3);}
+        .eye{width:36px;height:36px;background:#fff;border-radius:50%;position:absolute;top:40px;border:3px solid #000;animation:blink 4s infinite;}
+        .eye.l{left:28px;}.eye.r{right:28px;}
+        .pupil{width:14px;height:14px;background:#222;border-radius:50%;position:absolute;top:8px;left:8px;}
+        .beak{width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:19px solid #ff6b6b;position:absolute;top:85px;left:62px;}
+
+        .bubble{background:rgba(255,255,255,.96);backdrop-filter:blur(12px);color:#1a1a1a;padding:22px 35px;border-radius:30px;font-size:1.45rem;font-weight:700;position:relative;cursor:pointer;box-shadow:0 15px 40px rgba(0,0,0,.3),0 0 20px var(--neon);border:2px solid var(--neon);margin-bottom:35px;display:inline-block;line-height:1.5;min-width:280px;}
+        .bubble::after{content:'';position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);border-left:12px solid transparent;border-right:12px solid transparent;border-top:18px solid rgba(255,255,255,.96);}
+
+        .btn-container{margin-top:20px;height:80px;display:flex;justify-content:center;align-items:center;}
+        #start-btn{display:none;padding:14px 38px;font-size:1.15rem;font-weight:800;background:transparent;border:2px solid var(--neon);border-radius:50px;color:var(--neon);cursor:pointer;transition:all .3s;white-space:nowrap;opacity:0;font-family:'Nunito',sans-serif;letter-spacing:1px;}
+        #start-btn:hover{transform:scale(1.08) translateY(-4px);background:linear-gradient(45deg,#ffcc00,#00f2fe);box-shadow:0 0 25px var(--neon);color:#000;border-color:transparent;}
+
+        @keyframes popIn{0%{transform:scale(0);opacity:0;}70%{transform:scale(1.2);opacity:1;}100%{transform:scale(1);opacity:1;}}
+        @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-18px);}}
+        @keyframes blink{0%,90%,100%{transform:scaleY(1);}95%{transform:scaleY(.1);}}
+        @keyframes pulse{0%{box-shadow:0 0 12px var(--neon);}50%{box-shadow:0 0 35px var(--neon),0 0 60px var(--neon-glow);}100%{box-shadow:0 0 12px var(--neon);}}
+        @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+        .confetti{position:absolute;width:10px;height:10px;top:-10px;z-index:999;animation:fall linear forwards;border-radius:2px;}
+        @keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+        .victory-jump{animation:winBounce .5s ease infinite !important;}
+        @keyframes winBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-40px) scale(1.05);}}
+    </style>
+</head>
+<body>
+<audio id="pop-sound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
+
+<div id="intro-screen">
+    <div id="jumper-kuku"></div>
+    <div class="word" id="wordBox">
+        <span class="letter">S</span><span class="letter">P</span><span class="letter">E</span><span class="letter">A</span><span class="letter">K</span><span class="letter">L</span><span class="letter">Y</span>
+    </div>
+</div>
+
+<div id="chat-screen">
+    <div class="bubble" id="main-bubble" onclick="nextMessage()">
+        <span id="text-area"></span>
+        <small style="display:block;font-size:.78rem;color:#888;margin-top:8px;">Tap here ✨</small>
+    </div>
+    <div class="kuku-big">
+        <div class="eye l"><div class="pupil"></div></div>
+        <div class="eye r"><div class="pupil"></div></div>
+        <div class="beak"></div>
+    </div>
+    <div class="btn-container">
+        <button id="start-btn" onclick="celebrateWin()">LET'S GET STARTED FOR FREE! ⚡</button>
+    </div>
+</div>
+
+<script>
+const letters=document.querySelectorAll('.letter');
+const jumper=document.getElementById('jumper-kuku');
+const bubbleText=document.getElementById('text-area');
+const startBtn=document.getElementById('start-btn');
+const mainBubble=document.getElementById('main-bubble');
+const introScreen=document.getElementById('intro-screen');
+const chatScreen=document.getElementById('chat-screen');
+const popSound=document.getElementById('pop-sound');
+
+let jumpIdx=0,msgIdx=0,isTyping=false;
+
+const messages=[
+    "Yo! I'm <b>Kuku</b>, your new language bestie! 🔥",
+    "I'll make learning so fun, you won't even realize you're studying! 😄",
+    "Ready to unlock a whole new world with <b>Speakly</b>? 🌍✨"
+];
+
+function startJump(){
+    if(jumpIdx<letters.length){
+        const rect=letters[jumpIdx].getBoundingClientRect();
+        const parent=document.getElementById('wordBox').getBoundingClientRect();
+        jumper.style.left=(rect.left-parent.left+15)+'px';
+        letters[jumpIdx].classList.add('active');
+        jumpIdx++;
+        setTimeout(startJump,500);
+    } else {
+        setTimeout(()=>{
+            introScreen.style.display='none';
+            chatScreen.style.display='block';
+            isTyping=true;
+            typeWriter(messages[0],0);
+        },800);
+    }
+}
+
+function typeWriter(text,i){
+    if(i<text.length){
+        if(text.charAt(i)==='<'){
+            let endTag=text.indexOf('>',i);
+            bubbleText.innerHTML=text.substring(0,endTag+1);
+            i=endTag+1;
+        } else {
+            bubbleText.innerHTML=text.substring(0,i+1);
+            i++;
+        }
+        setTimeout(()=>typeWriter(text,i),38);
+    } else {
+        isTyping=false;
+    }
+}
+
+function nextMessage(){
+    if(isTyping)return;
+    msgIdx++;
+    if(msgIdx<messages.length){
+        isTyping=true;
+        bubbleText.innerHTML="";
+        typeWriter(messages[msgIdx],0);
+    } else {
+        showButton();
+    }
+}
+
+function showButton(){
+    mainBubble.style.display='none';
+    startBtn.style.display='inline-block';
+    popSound.play().catch(e=>{});
+    startBtn.style.animation='popIn .5s cubic-bezier(0.175,0.885,0.32,1.275) forwards, pulse 2s .5s infinite';
+}
+
+function celebrateWin(){
+    document.querySelector('.kuku-big').classList.add('victory-jump');
+    const colors=['#00f2fe','#ffcc00','#ff6b6b','#ffffff','#a29bfe'];
+    for(let i=0;i<120;i++){
+        const c=document.createElement('div');
+        c.className='confetti';
+        c.style.left=Math.random()*100+'vw';
+        c.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
+        c.style.animationDuration=(Math.random()*2+2)+'s';
+        c.style.opacity=Math.random();
+        document.body.appendChild(c);
+        setTimeout(()=>c.remove(),4000);
+    }
+    startBtn.innerText="AMAZING! 🌟";
+    setTimeout(()=>{ window.location.href="home.html"; },2500);
+}
+
+window.onload=()=>{ setTimeout(startJump,1000); };
+</script>
+</body>
+</html>

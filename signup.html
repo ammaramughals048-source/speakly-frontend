@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <title>Speakly</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"> //for animation library
+
+    <style>
+        :root{--bg:#0c1021;--neon:#00f2fe;--yellow:#ffcc00;--neon-glow:rgba(0,242,254,.3);--card-bg:rgba(255,255,255,.04);--border:rgba(0,242,254,.2);--text:#e0f7ff;--muted:#7a9bb5;--red:#ff4b4b;--green:#58cc02;}
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;}
+        body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,242,254,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,242,254,.03) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;}
+
+        nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 40px;height:68px;display:flex;align-items:center;justify-content:space-between;background:rgba(12,16,33,.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+        .nav-logo{font-family:'Baloo 2',cursive;font-size:1.7rem;font-weight:800;color:var(--neon);text-shadow:0 0 15px var(--neon-glow);text-decoration:none;}
+        .nav-logo span{color:var(--yellow);}
+        .nav-links{display:flex;align-items:center;gap:8px;}
+        .nav-links a{color:var(--muted);text-decoration:none;font-weight:700;font-size:.92rem;padding:8px 16px;border-radius:10px;transition:all .25s;}
+        .nav-links a:hover{color:var(--neon);background:rgba(0,242,254,.08);}
+        .nav-cta{display:flex;gap:10px;align-items:center;}
+        .btn-outline{padding:9px 22px;border:1.5px solid var(--neon);border-radius:25px;color:var(--neon);background:transparent;font-family:'Nunito',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;transition:all .25s;text-decoration:none;}
+        .btn-outline:hover{background:rgba(0,242,254,.1);}
+
+        /* ── PAGE ── */
+        .page{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:90px 20px 40px;}
+
+        /* ── ROLE SELECTION ── */
+        #roleStep{text-align:center;}
+        .page-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 18px;background:rgba(0,242,254,.08);border:1px solid var(--border);border-radius:30px;font-size:.82rem;font-weight:700;color:var(--neon);margin-bottom:22px;}
+        .page-title{font-family:'Baloo 2',cursive;font-size:2.5rem;font-weight:800;margin-bottom:10px;}
+        .page-sub{color:var(--muted);font-size:.98rem;font-weight:600;margin-bottom:36px;}
+        .role-row{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;}
+        .role-card{background:var(--card-bg);border:2px solid rgba(255,255,255,.08);padding:36px 28px;border-radius:22px;width:220px;cursor:pointer;transition:all .35s cubic-bezier(.175,.885,.32,1.275);text-align:center;}
+        .role-card:hover{border-color:var(--neon);transform:translateY(-10px);box-shadow:0 0 35px rgba(0,242,254,.2);background:rgba(0,242,254,.05);}
+        .role-card .r-icon{font-size:3.5rem;margin-bottom:14px;}
+        .role-card h3{color:var(--neon);font-size:1.1rem;font-weight:800;margin-bottom:8px;}
+        .role-card p{color:var(--muted);font-size:.84rem;font-weight:600;line-height:1.5;}
+
+        /* ── FORM ── */
+        #formStep{display:none;width:100%;max-width:460px;}
+        .form-card{background:rgba(10,14,28,.9);border:1px solid var(--border);border-radius:28px;padding:42px 40px;backdrop-filter:blur(10px);}
+        .form-back{display:flex;align-items:center;gap:8px;color:var(--muted);cursor:pointer;font-weight:700;font-size:.88rem;margin-bottom:24px;transition:.25s;width:fit-content;}
+        .form-back:hover{color:var(--neon);}
+        .form-heading{font-family:'Baloo 2',cursive;font-size:1.6rem;font-weight:800;margin-bottom:6px;}
+        .form-sub{color:var(--muted);font-size:.88rem;font-weight:600;margin-bottom:28px;}
+
+        /* Social */
+        .social-btn{width:100%;padding:13px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--text);font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:.3s;font-size:.92rem;}
+        .social-btn:hover{background:rgba(255,255,255,.1);border-color:var(--neon);box-shadow:0 0 15px var(--neon-glow);}
+        .social-btn img{width:18px;height:18px;}
+
+        .divider{margin:22px 0;display:flex;align-items:center;gap:12px;}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.1);}
+        .divider span{color:var(--muted);font-size:.8rem;font-weight:700;}
+
+        /* Input group */
+        .input-group{margin-bottom:16px;position:relative;}
+        .input-label{display:block;font-size:.82rem;font-weight:800;color:var(--muted);margin-bottom:7px;letter-spacing:.4px;text-transform:uppercase;}
+        .neon-input{width:100%;padding:14px 16px;background:rgba(0,0,0,.35);border:1.5px solid rgba(255,255,255,.1);border-radius:14px;color:var(--text);outline:none;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:600;transition:all .3s;}
+        .neon-input:focus{border-color:var(--neon);box-shadow:0 0 16px rgba(0,242,254,.15);}
+        .neon-input.valid{border-color:var(--green)!important;box-shadow:0 0 12px rgba(88,204,2,.15)!important;}
+        .neon-input.invalid{border-color:var(--red)!important;box-shadow:0 0 12px rgba(255,75,75,.15)!important;}
+        .input-hint{font-size:.76rem;margin-top:6px;font-weight:600;min-height:18px;transition:.25s;}
+        .hint-ok{color:var(--green);}
+        .hint-err{color:var(--red);}
+        .hint-info{color:var(--muted);}
+
+        /* Password strength */
+        .strength-bar{display:flex;gap:4px;margin-top:8px;}
+        .strength-seg{height:4px;flex:1;border-radius:4px;background:rgba(255,255,255,.1);transition:background .3s;}
+
+        /* Password toggle */
+        .pw-wrap{position:relative;}
+        .pw-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:0;}
+
+        /* CAPTCHA */
+        .captcha-box{background:rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.1);border-radius:14px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;transition:.3s;}
+        .captcha-box:hover{border-color:var(--border);}
+        .captcha-left{display:flex;align-items:center;gap:12px;}
+        .captcha-check{width:22px;height:22px;border:2px solid var(--muted);border-radius:4px;cursor:pointer;transition:.3s;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .captcha-check.checked{border-color:var(--green);background:var(--green);}
+        .captcha-label{font-size:.9rem;font-weight:600;color:var(--text);}
+        .captcha-logo{font-size:.62rem;color:var(--muted);text-align:right;line-height:1.4;}
+
+        /* Submit */
+        .submit-btn{width:100%;background:var(--neon);color:#0c1021;border:none;padding:16px;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;cursor:pointer;margin-top:6px;text-transform:uppercase;letter-spacing:1px;transition:.3s;opacity:.5;pointer-events:none;}
+        .submit-btn.enabled{opacity:1;pointer-events:all;}
+        .submit-btn.enabled:hover{box-shadow:0 0 25px var(--neon);transform:translateY(-2px);}
+
+        .login-link{margin-top:20px;font-size:.86rem;color:var(--muted);text-align:center;font-weight:600;}
+        .login-link a{color:var(--neon);text-decoration:none;font-weight:800;}
+        .login-link a:hover{text-shadow:0 0 10px var(--neon-glow);}
+
+        /* Role badge on form */
+        .role-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;background:rgba(0,242,254,.08);border:1px solid var(--border);border-radius:20px;font-size:.8rem;font-weight:800;color:var(--neon);margin-bottom:16px;}
+
+        /* Progress steps */
+        .steps{display:flex;gap:8px;margin-bottom:28px;}
+        .step{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.1);transition:.4s;}
+        .step.done{background:var(--neon);}
+
+        @media(max-width:600px){
+            nav{padding:0 20px;}
+            .nav-links,.nav-cta{display:none;}
+            .form-card{padding:30px 22px;}
+            .page-title{font-size:2rem;}
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="home.html" class="nav-logo">Speak<span>ly</span></a>
+    <div class="nav-links">
+        <a href="home.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="faq.html">FAQ</a>
+    </div>
+    <div class="nav-cta">
+        <a href="login.html" class="btn-outline">Log In</a>
+    </div>
+</nav>
+
+<div class="page">
+
+    <!-- STEP 1: Role -->
+    <div id="roleStep">
+        <div class="page-badge">🚀 Create Your Account</div>
+        <h1 data-aos="fade-in" class="page-title">Join <span style="color:var(--neon)">Speakly</span></h1>
+        <p data-aos="fade-in" data-aos-delay="500" class="page-sub">Who are you signing up as?</p>
+        <div data-aos="fade-up" data-aos-delay="1000" class="role-row">
+            <div class="role-card" onclick="openForm('Learner','🎒')">
+                <div class="r-icon">🎒</div>
+                <h3>As A Learner</h3>
+                <p>I want to learn languages with Kuku and unlock new worlds!</p>
+            </div>
+            <!-- <div class="role-card" onclick="openForm('Admin','🛡️')">
+                <div class="r-icon">🛡️</div>
+                <h3>As An Admin</h3>
+                <p>I want to manage lessons, users and content on Speakly.</p>
+            </div> -->
+        </div>
+    </div>
+
+    <!-- STEP 2: Form -->
+    <div id="formStep">
+        <div class="form-card">
+            <div class="form-back" onclick="goBack()">← Back</div>
+            <div class="steps">
+                <div class="step done"></div>
+                <div class="step done"></div>
+            </div>
+            <div class="role-badge" id="roleBadge">🎒 Learner</div>
+            <h2 class="form-heading">Create Your Account</h2>
+            <p class="form-sub">Fill in your details to get started on Speakly.</p>
+
+            <!-- Google -->
+            <button class="social-btn" onclick="googleSignup()">
+                <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="Google"> Continue with Google
+            </button>
+
+            <div class="divider"><span>OR SIGN UP WITH EMAIL</span></div>
+
+            <!-- Full Name -->
+            <div class="input-group">
+                <label class="input-label">Full Name</label>
+                <input type="text" class="neon-input" id="fullName" placeholder="write your name here..." oninput="validateName()" maxlength="50">
+                <div class="input-hint hint-info" id="nameHint">Enter your full name</div>
+            </div>
+
+            <!-- Username -->
+            <div class="input-group">
+                <label class="input-label">Username</label>
+                <input type="text" class="neon-input" id="username" placeholder="username" oninput="validateUsername()" maxlength="20">
+                <div class="input-hint hint-info" id="usernameHint">Letters and digits only, max 20 characters</div>
+            </div>
+
+            <!-- Email -->
+            <div class="input-group">
+                <label class="input-label">Email Address</label>
+                <input type="email" class="neon-input" id="email" placeholder="you@example.com" oninput="validateEmail()" maxlength="30">
+                <div class="input-hint hint-info" id="emailHint">Max 30 characters</div>
+            </div>
+
+            <!-- Password -->
+            <div class="input-group">
+                <label class="input-label">Password</label>
+                <div class="pw-wrap">
+                    <input type="password" class="neon-input" id="password" placeholder="Create a strong password" oninput="validatePassword()" maxlength="12">
+                    <button class="pw-toggle" type="button" onclick="togglePw('password','eye1')" id="eye1">👁</button>
+                </div>
+                <div class="strength-bar">
+                    <div class="strength-seg" id="s1"></div>
+                    <div class="strength-seg" id="s2"></div>
+                    <div class="strength-seg" id="s3"></div>
+                    <div class="strength-seg" id="s4"></div>
+                </div>
+                <div class="input-hint hint-info" id="passwordHint">8–12 chars, mix letters, numbers & symbols</div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="input-group">
+                <label class="input-label">Confirm Password</label>
+                <div class="pw-wrap">
+                    <input type="password" class="neon-input" id="confirmPw" placeholder="Re-enter your password" oninput="validateConfirm()" maxlength="12">
+                    <button class="pw-toggle" type="button" onclick="togglePw('confirmPw','eye2')" id="eye2">👁</button>
+                </div>
+                <div class="input-hint hint-info" id="confirmHint">Re-enter your password</div>
+            </div>
+
+            <!-- CAPTCHA -->
+            <div class="captcha-box" id="captchaBox">
+                <div class="captcha-left">
+                    <div class="captcha-check" id="captchaCheck" onclick="toggleCaptcha()"></div>
+                    <span class="captcha-label">I'm not a robot</span>
+                </div>
+                <div class="captcha-logo">🛡️<br>Speakly<br>Security</div>
+            </div>
+
+            <button class="submit-btn" id="submitBtn" onclick="processSignup()">Create My Account 🚀</button>
+
+            <p class="login-link">Already have an account? <a href="login.html">Log in here →</a></p>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init({
+    duration: 1000, // Animation kitni dair chale (1 second)
+    once: true,     // Kya animation sirf ek baar ho?
+  });
+let selectedRole='',captchaChecked=false;
+
+const validity={name:false,username:false,email:false,password:false,confirm:false,captcha:false};
+
+function openForm(role,icon){
+    selectedRole=role;
+    document.getElementById('roleStep').style.display='none';
+    document.getElementById('formStep').style.display='block';
+    document.getElementById('roleBadge').textContent=icon+' '+role;
+}
+
+function goBack(){
+    document.getElementById('formStep').style.display='none';
+    document.getElementById('roleStep').style.display='block';
+    resetForm();
+}
+
+function resetForm(){
+    ['fullName','username','email','password','confirmPw'].forEach(id=>{
+        const el=document.getElementById(id);
+        el.value='';
+        el.className='neon-input';
+    });
+    ['nameHint','usernameHint','emailHint','passwordHint','confirmHint'].forEach(id=>{
+        document.getElementById(id).textContent='';
+        document.getElementById(id).className='input-hint hint-info';
+    });
+    Object.keys(validity).forEach(k=>validity[k]=false);
+    captchaChecked=false;
+    document.getElementById('captchaCheck').className='captcha-check';
+    updateSubmit();
+}
+
+function setField(id,hintId,ok,msg){
+    const el=document.getElementById(id);
+    const hint=document.getElementById(hintId);
+    el.classList.remove('valid','invalid');
+    el.classList.add(ok?'valid':'invalid');
+    hint.textContent=msg;
+    hint.className='input-hint '+(ok?'hint-ok':'hint-err');
+}
+
+function setInfo(id,msg){
+    const el=document.getElementById(id);
+    el.textContent=msg;
+    el.className='input-hint hint-info';
+}
+
+// ── VALIDATORS ──
+function validateName(){
+    const v=document.getElementById('fullName').value.trim();
+    if(!v){setInfo('nameHint','Enter your full name');validity.name=false;}
+    else if(v.length<2){setField('fullName','nameHint',false,'Name is too short');validity.name=false;}
+    else{setField('fullName','nameHint',true,'✓ Looks good!');validity.name=true;}
+    updateSubmit();
+}
+
+function validateUsername(){
+    const v=document.getElementById('username').value;
+    const alphaNum=/^[a-zA-Z0-9]+$/;
+    if(!v){setInfo('usernameHint','Letters and digits only, max 20');validity.username=false;}
+    else if(!alphaNum.test(v)){setField('username','usernameHint',false,'Only letters and digits allowed (no spaces/symbols)');validity.username=false;}
+    else if(v.length<3){setField('username','usernameHint',false,'At least 3 characters required');validity.username=false;}
+    else if(v.length>20){setField('username','usernameHint',false,'Maximum 20 characters allowed');validity.username=false;}
+    else{setField('username','usernameHint',true,'✓ Username available! ('+v.length+'/20)');validity.username=true;}
+    updateSubmit();
+}
+
+function validateEmail(){
+    const v=document.getElementById('email').value.trim();
+    const emailRx=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(!v){setInfo('emailHint','Enter your email address');validity.email=false;}
+    else if(v.length>30){setField('email','emailHint',false,'Email must be max 30 characters');validity.email=false;}
+    else if(!emailRx.test(v)){setField('email','emailHint',false,'Please enter a valid email address');validity.email=false;}
+    else{setField('email','emailHint',true,'✓ Valid email ('+v.length+'/30)');validity.email=true;}
+    updateSubmit();
+}
+
+function validatePassword(){
+    const v=document.getElementById('password').value;
+    const hasLetter=/[a-zA-Z]/.test(v);
+    const hasNum=/[0-9]/.test(v);
+    const hasSym=/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v);
+    let score=0;
+    if(v.length>=8)score++;
+    if(hasLetter)score++;
+    if(hasNum)score++;
+    if(hasSym)score++;
+
+    const colors=['#ff4b4b','#ff9600','#ffc800','#58cc02'];
+    const segs=['s1','s2','s3','s4'];
+    segs.forEach((s,i)=>{
+        document.getElementById(s).style.background=i<score?colors[score-1]:'rgba(255,255,255,.1)';
+    });
+
+    if(!v){setInfo('passwordHint','8–12 chars, mix letters, numbers & symbols');validity.password=false;}
+    else if(v.length<8){setField('password','passwordHint',false,'Too short — minimum 8 characters');validity.password=false;}
+    else if(v.length>12){setField('password','passwordHint',false,'Too long — maximum 12 characters');validity.password=false;}
+    else if(!hasLetter||!hasNum||!hasSym){setField('password','passwordHint',false,'Must include letters, numbers AND a symbol (e.g. @, !, #)');validity.password=false;}
+    else{setField('password','passwordHint',true,'✓ Strong password!');validity.password=true;}
+
+    if(document.getElementById('confirmPw').value) validateConfirm();
+    updateSubmit();
+}
+
+function validateConfirm(){
+    const pw=document.getElementById('password').value;
+    const cpw=document.getElementById('confirmPw').value;
+    if(!cpw){setInfo('confirmHint','Re-enter your password');validity.confirm=false;}
+    else if(cpw!==pw){setField('confirmPw','confirmHint',false,'Passwords do not match');validity.confirm=false;}
+    else{setField('confirmPw','confirmHint',true,'✓ Passwords match!');validity.confirm=true;}
+    updateSubmit();
+}
+
+function toggleCaptcha(){
+    captchaChecked=!captchaChecked;
+    const check=document.getElementById('captchaCheck');
+    if(captchaChecked){
+        check.className='captcha-check checked';
+        check.innerHTML='<span style="color:#fff;font-size:14px;font-weight:800;">✓</span>';
+    } else {
+        check.className='captcha-check';
+        check.innerHTML='';
+    }
+    validity.captcha=captchaChecked;
+    updateSubmit();
+}
+
+function updateSubmit(){
+    const allValid=Object.values(validity).every(v=>v);
+    const btn=document.getElementById('submitBtn');
+    btn.classList.toggle('enabled',allValid);
+}
+
+function togglePw(inputId,btnId){
+    const inp=document.getElementById(inputId);
+    inp.type=inp.type==='password'?'text':'password';
+    document.getElementById(btnId).textContent=inp.type==='password'?'👁':'🙈';
+}
+
+function googleSignup(){
+    showToast('Google signup would open OAuth here 🔐');
+}
+
+async function processSignup(){
+    if(!Object.values(validity).every(v=>v)) return;
+    
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Creating Account... 🎉';
+    btn.style.background = 'var(--green)';
+
+    const userData = {
+        name: document.getElementById('fullName').value.trim(),
+        username: document.getElementById('username').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value,
+        role: selectedRole
+    };
+
+    try {
+        const response = await fetch('http://localhost:5000/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+
+        const data = await response.json();
+
+        if(response.ok){
+            // Save token and user info
+            localStorage.setItem('speakly_token', data.token);
+            localStorage.setItem('speakly_user', JSON.stringify(data.user));
+            localStorage.setItem('speakly_logged_in', 'true');
+            
+            showToast('Account created! Welcome to Speakly 🎉');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1500);
+        } else {
+            btn.textContent = 'Create Account →';
+            btn.style.background = '';
+            showToast('❌ ' + data.message);
+        }
+
+    } catch(error){
+        btn.textContent = 'Create Account →';
+        btn.style.background = '';
+        showToast('❌ Server se connection nahi hua!');
+    }
+}
+
+function showToast(msg){
+    const t=document.createElement('div');
+    t.textContent=msg;
+    t.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(0,242,254,.15);border:1px solid var(--neon);color:var(--neon);padding:12px 24px;border-radius:12px;font-weight:700;z-index:999;backdrop-filter:blur(8px);transition:opacity .4s;';
+    document.body.appendChild(t);
+    setTimeout(()=>{t.style.opacity=0;setTimeout(()=>t.remove(),400);},2500);
+}
+</script>
+</body>
+</html>
