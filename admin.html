@@ -986,7 +986,7 @@
           <div class="card-body">
             <div class="form-group">
               <label class="form-label">Backend URL</label>
-              <input class="form-input" id="apiUrl" value="http://localhost:5000" />
+              <input class="form-input" id="apiUrl" value="https://speakly-backend-production-9ef4.up.railway.app" />
             </div>
             <div class="form-group">
               <label class="form-label">JWT Secret (masked)</label>
@@ -1072,7 +1072,7 @@
 </div>
 
 <script>
-  const API = localStorage.getItem('speakly_api') || 'http://localhost:5000';
+  const API = localStorage.getItem('speakly_api') || 'https://speakly-backend-production-9ef4.up.railway.app';
   const TOKEN = localStorage.getItem('token');
   let allUsers = [];
   let filterState = 'all';
