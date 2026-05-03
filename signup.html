@@ -228,6 +228,7 @@
 </div>
 
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
     AOS.init({
     duration: 1000, // Animation kitni dair chale (1 second)
@@ -377,6 +378,9 @@ function googleSignup(){
     showToast('Google signup would open OAuth here 🔐');
 }
 
+// EmailJS Init
+emailjs.init('5gqlK7VXijPOo4sR-');
+
 async function processSignup(){
     if(!Object.values(validity).every(v=>v)) return;
     
@@ -402,15 +406,26 @@ async function processSignup(){
         const data = await response.json();
 
         if(response.ok){
-            // Save token and user info
             localStorage.setItem('speakly_token', data.token);
             localStorage.setItem('speakly_user', JSON.stringify(data.user));
             localStorage.setItem('speakly_logged_in', 'true');
             
-            showToast('Account created! Welcome to Speakly 🎉');
+            // Send welcome email via EmailJS
+            try {
+                await emailjs.send('service_rpd92fu', 'template_u74rv04', {
+                    to_name: userData.name,
+                    to_email: userData.email,
+                    email: userData.email,
+                    verification_link: 'https://speakly-frontend-silk.vercel.app/login.html'
+                });
+                showToast('Account created! Check your email 📧');
+            } catch(emailErr) {
+                showToast('Account created! Welcome to Speakly 🎉');
+            }
+            
             setTimeout(() => {
                 window.location.href = 'dashboard.html';
-            }, 1500);
+            }, 2000);
         } else {
             btn.textContent = 'Create Account →';
             btn.style.background = '';
