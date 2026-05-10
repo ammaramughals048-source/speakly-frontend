@@ -715,6 +715,7 @@
             <span></span>
         </div>
         <div class="logo">SPEAK<span>LY</span>
+          <div style="color:#00d4ff;font-size:0.85rem;font-weight:700;margin-left:10px;" id="navUsername"></div>
         </div>
     </div>
 
@@ -1954,6 +1955,9 @@ function saveSessionStats(lang, cat, level, xp, acc, completed) {
   if (streakD.streak > (d.bestStreak || 0)) d.bestStreak = streakD.streak;
 
   saveStatsData(d);
+  // Backend sync
+var streakVal = getStreakData().streak || 0;
+syncXPToBackend(d.totalXP || 0, streakVal);
 }
 
 // Leaderboard mock data (simulated other users)
@@ -2271,6 +2275,42 @@ async function sendMessage() {
 function handleKeyPress(e) {
     if (e.key === 'Enter') sendMessage();
 }
+// ── USER SESSION ──
+function loadUserSession() {
+    const user = JSON.parse(localStorage.getItem('speakly_user') || 'null');
+    if (!user) {
+        window.location.href = 'login.html';
+        return;
+    }
+    const nameEl = document.getElementById('navUsername');
+    if (nameEl) nameEl.textContent = '👤 ' + (user.name || user.username || 'User');
+}
+
+function logoutUser() {
+    localStorage.removeItem('speakly_token');
+    localStorage.removeItem('speakly_user');
+    localStorage.removeItem('speakly_logged_in');
+    window.location.href = 'login.html';
+}
+
+// ── SYNC XP TO BACKEND ──
+async function syncXPToBackend(xp, streak) {
+    const token = localStorage.getItem('speakly_token');
+    if (!token) return;
+    try {
+        await fetch('https://speakly-backend-production-9ef4.up.railway.app/api/user/progress', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ xp: xp, streak: streak, level: Math.ceil(xp / 50) })
+        });
+    } catch(e) { console.log('Sync failed:', e); }
+}
+
+// Page load par run karo
+loadUserSession();
 
 </script>
 </body>
