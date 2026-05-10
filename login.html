@@ -199,7 +199,7 @@ function togglePw(){
 }
 
 function googleLogin(){
-    showToast('Google login would open OAuth here 🔐');
+    window.location.href = 'https://speakly-backend-production-9ef4.up.railway.app/api/auth/google';
 }
 
 function forgotPassword(e){
@@ -271,6 +271,17 @@ function showToast(msg){
     document.body.appendChild(t);
     setTimeout(()=>{t.style.opacity=0;setTimeout(()=>t.remove(),400);},2500);
 }
+window.addEventListener('load', () => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const user = params.get('user');
+    if (token && user) {
+        localStorage.setItem('speakly_token', token);
+        localStorage.setItem('speakly_user', decodeURIComponent(user));
+        localStorage.setItem('speakly_logged_in', 'true');
+        window.location.href = 'dashboard.html';
+    }
+});
 </script>
 </body>
 </html>
