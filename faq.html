@@ -160,21 +160,39 @@ function valFbMsg(){
     h.style.color=v.length>230?'#ff4b4b':'';
 }
 
+emailjs.init('5gqlK7VXijPOo4sR-');
+
 function submitFeedback(){
     const email=document.getElementById('fbEmail').value.trim();
     const msg=document.getElementById('fbMsg').value.trim();
     if(!email||!msg){alert('Please fill in both fields!');return;}
     if(msg.length>250){alert('Message must be 250 characters or less!');return;}
+
+    emailjs.send('service_rpd92fu','template_u74rv04',{
+        to_name: 'Speakly Team',
+        to_email: 'nimrahahmad613@gmail.com',
+        email: email,
+        from_name: email,
+        message: msg
+    }).then(()=>{
+        showToast('✓ Message sent! We\'ll get back to you soon 💙');
+        document.getElementById('fbEmail').value='';
+        document.getElementById('fbMsg').value='';
+    }).catch(()=>{
+        showToast('❌ Could not send. Try again!');
+    });
+}
+
+function showToast(msg){
     const t=document.createElement('div');
-    t.textContent='✓ Message sent! We\'ll get back to you soon 💙';
+    t.textContent=msg;
     t.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(0,242,254,.12);border:1px solid var(--neon);color:var(--neon);padding:12px 24px;border-radius:12px;font-weight:700;z-index:999;';
     document.body.appendChild(t);
-    document.getElementById('fbEmail').value='';
-    document.getElementById('fbMsg').value='';
-    setTimeout(()=>t.remove(),3000);
+    setTimeout(()=>t.remove(),3500);
 }
 
 renderFAQs();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </body>
 </html>
