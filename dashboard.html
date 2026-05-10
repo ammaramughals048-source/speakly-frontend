@@ -2127,79 +2127,63 @@ function renderLangBreakdown(d) {
   });
 }
 
-function renderLeaderboard(d) {
+async function renderLeaderboard(d) {
   var wrap = document.getElementById('leaderboardWrap');
-  wrap.innerHTML = '';
+  wrap.innerHTML = '<div style="color:#8899bb;text-align:center;padding:20px 0;">Loading... ⏳</div>';
 
-  var currentUser = getCurrentUser();
-  var myUsername = currentUser ? (currentUser.username || currentUser.name || '') : '';
-
-  var myXP = d.totalXP || 0;
-  var myStreak = (getStreakData().streak) || 0;
-
-  // Sabhi registered users lao
-  var allUsers = getAllUsers();
-
-  // Agar current user list mein nahi to add kar lo
-  var meInList = allUsers.find(function(u) { return u.username === myUsername; });
-  if (!meInList && myUsername) {
-    var colorIdx = Math.abs(myUsername.split('').reduce(function(a,c){ return a + c.charCodeAt(0); },0)) % AVATAR_COLORS.length;
-    allUsers.push({
-      username: myUsername,
-      name: currentUser ? (currentUser.name || myUsername) : myUsername,
-      initials: myUsername.slice(0,2).toUpperCase(),
-      color: AVATAR_COLORS[colorIdx],
-      xp: myXP,
-      streak: myStreak,
-      isMe: true
-    });
-  } else if (meInList) {
-    meInList.xp = myXP;
-    meInList.streak = myStreak;
-  }
-
-  // XP ke hisaab se sort karo
-  allUsers.sort(function(a, b) { return b.xp - a.xp; });
-
-  if (allUsers.length === 0) {
-    wrap.innerHTML = '<div style="color:#8899bb;text-align:center;padding:20px 0;font-size:.85rem;">No user registered yet — do sign and rank up first! 🏆</div>';
+  const token = localStorage.getItem('speakly_token');
+  if (!token) {
+    wrap.innerHTML = '<div style="color:#8899bb;text-align:center;padding:20px 0;">Login required</div>';
     return;
   }
 
-  // Reset button
-  var resetRow = document.createElement('div');
-  resetRow.style.cssText = 'text-align:right;margin-bottom:6px;';
-  resetRow.innerHTML = '<span style="font-size:.7rem;color:#8899bb;cursor:pointer;text-decoration:underline;" onclick="confirmResetLeaderboard()">🗑 Leaderboard reset karo (test only)</span>';
-  wrap.appendChild(resetRow);
+  try {
+    const res = await fetch('https://speakly-backend-production-9ef4.up.railway.app/api/user/leaderboard', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    const users = data.users || [];
 
-  allUsers.forEach(function(p, i) {
-    var isMe = p.username === myUsername;
-    var row = document.createElement('div');
-    row.className = 'lb-row' + (isMe ? ' me' : '');
+    const currentUser = getCurrentUser();
+    const myUsername = currentUser ? (currentUser.username || '') : '';
 
-    var rankIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.';
-    var rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    wrap.innerHTML = '';
 
-    // Display name: prefer username, fallback to name
-    var displayName = p.username || p.name || 'Player';
-    var initials = (p.initials || displayName.slice(0,2)).toUpperCase();
-    var color = p.color || '#8899bb';
+    if (users.length === 0) {
+      wrap.innerHTML = '<div style="color:#8899bb;text-align:center;padding:20px 0;">Abhi koi user nahi! Pehle quiz complete karo 🏆</div>';
+      return;
+    }
 
-    row.innerHTML =
-      '<div class="lb-rank ' + rankClass + '">' + rankIcon + '</div>' +
-      '<div class="lb-avatar" style="background:' + color + '22;color:' + color + '">' + initials + '</div>' +
-      '<div class="lb-name">' + displayName +
-        (isMe ? '<span class="lb-you-badge">YOU</span>' : '') +
-      '</div>' +
-      '<div style="text-align:right">' +
-        '<div class="lb-xp">⭐ ' + (p.xp || 0) + '</div>' +
-        '<div class="lb-streak">🔥 ' + (p.streak || 0) + ' days</div>' +
-      '</div>';
+    users.forEach(function(p, i) {
+      var isMe = p.username === myUsername;
+      var row = document.createElement('div');
+      row.className = 'lb-row' + (isMe ? ' me' : '');
 
-    wrap.appendChild(row);
-  });
+      var rankIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '.';
+      var rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+
+      var initials = (p.name || p.username || 'U').slice(0,2).toUpperCase();
+      var colors = ['#5b8dee','#e05b8d','#8de05b','#e0c05b','#5be0cf','#c05be0','#ee8d5b'];
+      var color = colors[i % colors.length];
+
+      row.innerHTML =
+        '<div class="lb-rank ' + rankClass + '">' + rankIcon + '</div>' +
+        '<div class="lb-avatar" style="background:' + color + '22;color:' + color + '">' + initials + '</div>' +
+        '<div class="lb-name">' + (p.username || p.name || 'Player') +
+          (isMe ? '<span class="lb-you-badge">YOU</span>' : '') +
+        '</div>' +
+        '<div style="text-align:right">' +
+          '<div class="lb-xp">⭐ ' + (p.xp || 0) + '</div>' +
+          '<div class="lb-streak">🔥 ' + (p.streak || 0) + ' days</div>' +
+        '</div>';
+
+      wrap.appendChild(row);
+    });
+
+  } catch(e) {
+    wrap.innerHTML = '<div style="color:#ff4b4b;text-align:center;padding:20px 0;">Error loading leaderboard 😟</div>';
+  }
 }
-
 function confirmResetLeaderboard() {
   if (confirm('Sab users ka leaderboard data delete ho jaega. Confirm?')) {
     localStorage.removeItem('speakly_all_users');
