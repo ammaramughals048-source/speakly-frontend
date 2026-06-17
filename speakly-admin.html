@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speakly — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c1021;--neon:#00f2fe;--yellow:#ffcc00;
+  --neon-glow:rgba(0,242,254,.3);--card-bg:rgba(255,255,255,.04);
+  --border:rgba(0,242,254,.2);--text:#e0f7ff;--muted:#7a9bb5;
+  --red:#ff4b4b;--green:#58cc02;--orange:#ff9600;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,242,254,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,242,254,.03) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;}
+
+/* ── LOGIN SCREEN ── */
+#loginScreen{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:20px;}
+.login-card{background:rgba(10,14,28,.95);border:1px solid var(--border);border-radius:28px;padding:48px 44px;width:100%;max-width:420px;backdrop-filter:blur(10px);box-shadow:0 0 60px rgba(0,242,254,.08);}
+.login-logo{font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800;color:var(--neon);text-align:center;margin-bottom:4px;text-shadow:0 0 20px var(--neon-glow);}
+.login-logo span{color:var(--yellow);}
+.login-sub{text-align:center;color:var(--muted);font-size:.88rem;font-weight:600;margin-bottom:32px;}
+.login-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,204,0,.08);border:1px solid rgba(255,204,0,.2);border-radius:20px;padding:5px 14px;font-size:.78rem;font-weight:800;color:var(--yellow);margin:0 auto 28px;display:flex;width:fit-content;margin:0 auto 28px;}
+.lbl{font-size:.82rem;font-weight:800;color:var(--muted);margin-bottom:8px;display:block;}
+.inp{width:100%;padding:14px 16px;background:rgba(0,0,0,.35);border:1.5px solid rgba(255,255,255,.1);border-radius:14px;color:var(--text);outline:none;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:600;transition:all .3s;margin-bottom:16px;}
+.inp:focus{border-color:var(--neon);box-shadow:0 0 16px rgba(0,242,254,.15);}
+.inp.err-inp{border-color:var(--red) !important;}
+.login-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--neon),#0099cc);border:none;border-radius:14px;color:#0c1021;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:900;cursor:pointer;transition:all .3s;margin-top:8px;}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,242,254,.35);}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.login-err{background:rgba(255,75,75,.1);border:1px solid rgba(255,75,75,.3);border-radius:10px;padding:10px 14px;font-size:.85rem;font-weight:700;color:var(--red);margin-top:12px;display:none;}
+
+/* ── DASHBOARD ── */
+#dashboard{display:none;min-height:100vh;position:relative;z-index:1;}
+
+/* Topbar */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(12,16,33,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.topbar-logo{font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:800;color:var(--neon);text-shadow:0 0 12px var(--neon-glow);}
+.topbar-logo span{color:var(--yellow);}
+.topbar-right{display:flex;align-items:center;gap:16px;}
+.admin-badge{background:rgba(255,204,0,.1);border:1px solid rgba(255,204,0,.3);border-radius:20px;padding:5px 14px;font-size:.78rem;font-weight:800;color:var(--yellow);}
+.logout-btn{padding:8px 20px;border:1.5px solid rgba(255,75,75,.4);border-radius:20px;background:transparent;color:var(--red);font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;transition:all .25s;}
+.logout-btn:hover{background:rgba(255,75,75,.1);}
+
+/* Main content */
+.main{padding:80px 32px 40px;}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:32px;}
+.stat-card{background:var(--card-bg);border:1px solid var(--border);border-radius:18px;padding:22px 24px;transition:all .3s;}
+.stat-card:hover{border-color:var(--neon);box-shadow:0 0 20px rgba(0,242,254,.1);}
+.stat-icon{font-size:1.8rem;margin-bottom:10px;}
+.stat-num{font-family:'Baloo 2',cursive;font-size:2rem;font-weight:800;color:var(--neon);}
+.stat-label{font-size:.82rem;font-weight:700;color:var(--muted);margin-top:2px;}
+
+/* Section */
+.section-title{font-family:'Baloo 2',cursive;font-size:1.3rem;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+
+/* Search */
+.search-bar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.search-inp{flex:1;min-width:200px;padding:12px 16px;background:rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.08);border-radius:12px;color:var(--text);outline:none;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:600;transition:.3s;}
+.search-inp:focus{border-color:var(--neon);}
+.filter-sel{padding:12px 16px;background:rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.08);border-radius:12px;color:var(--text);outline:none;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;}
+.filter-sel option{background:#0c1021;}
+
+/* Table */
+.table-wrap{background:rgba(10,14,28,.8);border:1px solid var(--border);border-radius:20px;overflow:hidden;}
+.users-table{width:100%;border-collapse:collapse;}
+.users-table th{padding:14px 18px;text-align:left;font-size:.78rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(0,242,254,.03);}
+.users-table td{padding:14px 18px;font-size:.88rem;font-weight:600;border-bottom:1px solid rgba(255,255,255,.04);}
+.users-table tr:last-child td{border-bottom:none;}
+.users-table tr:hover td{background:rgba(0,242,254,.03);}
+.user-name-cell{display:flex;align-items:center;gap:10px;}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--neon),#0099cc);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.85rem;color:#0c1021;flex-shrink:0;}
+.u-name{font-weight:800;color:var(--text);}
+.u-email{font-size:.78rem;color:var(--muted);}
+.role-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:800;}
+.role-admin{background:rgba(255,204,0,.12);color:var(--yellow);border:1px solid rgba(255,204,0,.25);}
+.role-learner{background:rgba(0,242,254,.08);color:var(--neon);border:1px solid rgba(0,242,254,.2);}
+.status-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:800;}
+.status-active{background:rgba(88,204,2,.1);color:var(--green);border:1px solid rgba(88,204,2,.25);}
+.status-blocked{background:rgba(255,75,75,.1);color:var(--red);border:1px solid rgba(255,75,75,.25);}
+.xp-badge{font-family:'Baloo 2',cursive;color:var(--yellow);font-weight:800;}
+
+/* Action btns */
+.act-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.act-btn{padding:5px 12px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;cursor:pointer;border:1px solid;transition:all .2s;}
+.btn-block{background:rgba(255,150,0,.1);color:var(--orange);border-color:rgba(255,150,0,.3);}
+.btn-block:hover{background:rgba(255,150,0,.2);}
+.btn-unblock{background:rgba(88,204,2,.1);color:var(--green);border-color:rgba(88,204,2,.3);}
+.btn-unblock:hover{background:rgba(88,204,2,.2);}
+.btn-delete{background:rgba(255,75,75,.1);color:var(--red);border-color:rgba(255,75,75,.3);}
+.btn-delete:hover{background:rgba(255,75,75,.2);}
+.btn-edit{background:rgba(0,242,254,.08);color:var(--neon);border-color:rgba(0,242,254,.2);}
+.btn-edit:hover{background:rgba(0,242,254,.15);}
+
+/* Empty / Loading */
+.table-msg{text-align:center;padding:48px;color:var(--muted);font-weight:700;}
+.spinner{display:inline-block;width:28px;height:28px;border:3px solid rgba(0,242,254,.2);border-top-color:var(--neon);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;display:none;}
+.modal-overlay.open{display:flex;}
+.modal{background:rgba(10,14,28,.97);border:1px solid var(--border);border-radius:22px;padding:36px;width:100%;max-width:400px;box-shadow:0 0 60px rgba(0,242,254,.1);}
+.modal h3{font-family:'Baloo 2',cursive;font-size:1.3rem;margin-bottom:20px;color:var(--neon);}
+.modal-inp{width:100%;padding:12px 14px;background:rgba(0,0,0,.3);border:1.5px solid rgba(255,255,255,.1);border-radius:12px;color:var(--text);outline:none;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:600;margin-bottom:12px;transition:.3s;}
+.modal-inp:focus{border-color:var(--neon);}
+.modal-inp-label{font-size:.8rem;font-weight:800;color:var(--muted);display:block;margin-bottom:6px;}
+.modal-btns{display:flex;gap:10px;margin-top:8px;}
+.modal-save{flex:1;padding:12px;background:linear-gradient(135deg,var(--neon),#0099cc);border:none;border-radius:12px;color:#0c1021;font-family:'Nunito',sans-serif;font-weight:900;cursor:pointer;font-size:.9rem;}
+.modal-cancel{flex:1;padding:12px;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:12px;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:800;cursor:pointer;font-size:.9rem;}
+
+/* Toast */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(0,242,254,.12);border:1px solid var(--neon);color:var(--neon);padding:12px 26px;border-radius:14px;font-weight:800;z-index:9999;backdrop-filter:blur(8px);transition:all .4s cubic-bezier(.175,.885,.32,1.275);opacity:0;font-size:.9rem;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.err{background:rgba(255,75,75,.12);border-color:var(--red);color:var(--red);}
+
+/* Responsive */
+@media(max-width:768px){
+  .main{padding:80px 16px 40px;}
+  .topbar{padding:0 16px;}
+  .users-table th:nth-child(3),.users-table td:nth-child(3),
+  .users-table th:nth-child(4),.users-table td:nth-child(4){display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">Speak<span>ly</span></div>
+    <p class="login-sub">Secure Admin Access</p>
+    <div class="login-badge">🔐 Admin Only</div>
+    <label class="lbl">Email Address</label>
+    <input class="inp" type="email" id="loginEmail" placeholder="admin@example.com" onkeydown="if(event.key==='Enter')doLogin()">
+    <label class="lbl">Password</label>
+    <input class="inp" type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Login as Admin</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div id="dashboard">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-logo">Speak<span>ly</span> <span style="font-size:.9rem;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:700;">Admin</span></div>
+    <div class="topbar-right">
+      <div class="admin-badge">👑 <span id="adminName">Admin</span></div>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- Stats -->
+    <div class="section-title" style="margin-bottom:20px;">📊 Platform Overview</div>
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-num" id="statTotal">--</div><div class="stat-label">Total Users</div></div>
+      <div class="stat-card"><div class="stat-icon">🚫</div><div class="stat-num" id="statBlocked">--</div><div class="stat-label">Blocked Users</div></div>
+      <div class="stat-card"><div class="stat-icon">🎓</div><div class="stat-num" id="statLearners">--</div><div class="stat-label">Learners</div></div>
+      <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-num" id="statTopXP">--</div><div class="stat-label">Top XP</div></div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="section-title">👤 All Users</div>
+    <div class="search-bar">
+      <input class="search-inp" type="text" id="searchInp" placeholder="🔍  Search by name, username or email..." oninput="filterUsers()">
+      <select class="filter-sel" id="filterRole" onchange="filterUsers()">
+        <option value="">All Roles</option>
+        <option value="Learner">Learner</option>
+        <option value="Admin">Admin</option>
+      </select>
+      <select class="filter-sel" id="filterStatus" onchange="filterUsers()">
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="blocked">Blocked</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>XP / Level</th>
+            <th>Streak</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody">
+          <tr><td colspan="6" class="table-msg"><div class="spinner"></div><br>Loading users...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ EDIT MODAL ══ -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>✏️ Edit User Progress</h3>
+    <input type="hidden" id="editUserId">
+    <label class="modal-inp-label">XP Points</label>
+    <input class="modal-inp" type="number" id="editXP" placeholder="0" min="0">
+    <label class="modal-inp-label">Streak (days)</label>
+    <input class="modal-inp" type="number" id="editStreak" placeholder="0" min="0">
+    <label class="modal-inp-label">Level</label>
+    <input class="modal-inp" type="number" id="editLevel" placeholder="1" min="1">
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-save" onclick="saveProgress()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://speakly-backend-production-9ef4.up.railway.app';
+let token = null;
+let allUsers = [];
+
+// ── AUTH ──
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginErr');
+  const btn   = document.getElementById('loginBtn');
+
+  errEl.style.display = 'none';
+
+  if (!email || !pass) {
+    showLoginErr('Please enter email and password.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Logging in...';
+
+  try {
+    const res  = await fetch(`${API}/api/auth/login`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email, password: pass})
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showLoginErr(data.message || 'Login failed.');
+      btn.disabled = false; btn.textContent = 'Login as Admin';
+      return;
+    }
+
+    // Role check — Admin only
+    if (data.user.role !== 'Admin') {
+      showLoginErr('❌ Access denied. This panel is for Admins only.');
+      btn.disabled = false; btn.textContent = 'Login as Admin';
+      return;
+    }
+
+    token = data.token;
+    document.getElementById('adminName').textContent = data.user.name || data.user.username;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display   = 'block';
+    loadDashboard();
+
+  } catch(e) {
+    showLoginErr('❌ Could not connect to server. Try again.');
+    btn.disabled = false; btn.textContent = 'Login as Admin';
+  }
+}
+
+function showLoginErr(msg) {
+  const el = document.getElementById('loginErr');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function doLogout() {
+  token = null;
+  allUsers = [];
+  document.getElementById('dashboard').style.display   = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value  = '';
+  document.getElementById('loginErr').style.display = 'none';
+  document.getElementById('loginBtn').disabled = false;
+  document.getElementById('loginBtn').textContent = 'Login as Admin';
+}
+
+// ── LOAD DATA ──
+async function loadDashboard() {
+  await Promise.all([loadStats(), loadUsers()]);
+}
+
+async function loadStats() {
+  try {
+    const res  = await fetch(`${API}/api/admin/stats`, {headers:{Authorization:`Bearer ${token}`}});
+    const data = await res.json();
+    document.getElementById('statTotal').textContent   = data.totalUsers   ?? '--';
+    document.getElementById('statBlocked').textContent = data.blockedUsers  ?? '--';
+    const learners = (data.totalUsers ?? 0) - 1; // subtract admins approx
+    document.getElementById('statLearners').textContent = learners >= 0 ? learners : '--';
+    const topXP = data.topUsers && data.topUsers[0] ? data.topUsers[0].xp : '--';
+    document.getElementById('statTopXP').textContent = topXP;
+  } catch(e) {
+    console.error('Stats error', e);
+  }
+}
+
+async function loadUsers() {
+  const tbody = document.getElementById('usersBody');
+  tbody.innerHTML = '<tr><td colspan="6" class="table-msg"><div class="spinner"></div><br>Loading users...</td></tr>';
+  try {
+    const res  = await fetch(`${API}/api/admin/users`, {headers:{Authorization:`Bearer ${token}`}});
+    const data = await res.json();
+    allUsers = Array.isArray(data) ? data : (data.users || []);
+    renderUsers(allUsers);
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="6" class="table-msg" style="color:var(--red)">❌ Failed to load users. Check connection.</td></tr>';
+  }
+}
+
+// ── RENDER ──
+function renderUsers(users) {
+  const tbody = document.getElementById('usersBody');
+  if (!users.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="table-msg">No users found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = users.map(u => {
+    const initials = (u.name || u.username || '?').charAt(0).toUpperCase();
+    const statusCls = u.isBlocked ? 'status-blocked' : 'status-active';
+    const statusTxt = u.isBlocked ? '🚫 Blocked' : '✅ Active';
+    const roleCls   = u.role === 'Admin' ? 'role-admin' : 'role-learner';
+    return `<tr>
+      <td>
+        <div class="user-name-cell">
+          <div class="avatar">${initials}</div>
+          <div>
+            <div class="u-name">${esc(u.name || '-')}</div>
+            <div class="u-email">@${esc(u.username || '')} · ${esc(u.email || '')}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="role-pill ${roleCls}">${u.role || 'Learner'}</span></td>
+      <td><span class="xp-badge">${u.xp ?? 0} XP</span> <span style="color:var(--muted);font-size:.8rem;">Lv.${u.level ?? 1}</span></td>
+      <td><span style="color:var(--neon);font-weight:800;">🔥 ${u.streak ?? 0}</span></td>
+      <td><span class="status-pill ${statusCls}">${statusTxt}</span></td>
+      <td>
+        <div class="act-btns">
+          ${u.isBlocked
+            ? `<button class="act-btn btn-unblock" onclick="toggleBlock('${u._id}',false)">Unblock</button>`
+            : `<button class="act-btn btn-block"   onclick="toggleBlock('${u._id}',true)">Block</button>`}
+          <button class="act-btn btn-edit"   onclick="openEdit('${u._id}',${u.xp??0},${u.streak??0},${u.level??1})">Edit</button>
+          <button class="act-btn btn-delete" onclick="deleteUser('${u._id}','${esc(u.name||u.username)}')">Delete</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── FILTER / SEARCH ──
+function filterUsers() {
+  const q      = document.getElementById('searchInp').value.toLowerCase();
+  const role   = document.getElementById('filterRole').value;
+  const status = document.getElementById('filterStatus').value;
+
+  const filtered = allUsers.filter(u => {
+    const matchQ = !q ||
+      (u.name     || '').toLowerCase().includes(q) ||
+      (u.username || '').toLowerCase().includes(q) ||
+      (u.email    || '').toLowerCase().includes(q);
+    const matchRole   = !role   || u.role === role;
+    const matchStatus = !status ||
+      (status === 'blocked' &&  u.isBlocked) ||
+      (status === 'active'  && !u.isBlocked);
+    return matchQ && matchRole && matchStatus;
+  });
+  renderUsers(filtered);
+}
+
+// ── BLOCK / UNBLOCK ──
+async function toggleBlock(id, block) {
+  try {
+    const res = await fetch(`${API}/api/admin/user/${id}/block`, {
+      method: 'PUT',
+      headers: {Authorization:`Bearer ${token}`}
+    });
+    if (res.ok) {
+      showToast(block ? '🚫 User blocked' : '✅ User unblocked');
+      await loadUsers();
+      await loadStats();
+    } else {
+      showToast('❌ Action failed', true);
+    }
+  } catch(e) { showToast('❌ Server error', true); }
+}
+
+// ── DELETE ──
+async function deleteUser(id, name) {
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  try {
+    const res = await fetch(`${API}/api/admin/users/${id}`, {
+      method: 'DELETE',
+      headers: {Authorization:`Bearer ${token}`}
+    });
+    if (res.ok) {
+      showToast('🗑️ User deleted');
+      await loadUsers();
+      await loadStats();
+    } else {
+      showToast('❌ Delete failed', true);
+    }
+  } catch(e) { showToast('❌ Server error', true); }
+}
+
+// ── EDIT MODAL ──
+function openEdit(id, xp, streak, level) {
+  document.getElementById('editUserId').value  = id;
+  document.getElementById('editXP').value      = xp;
+  document.getElementById('editStreak').value  = streak;
+  document.getElementById('editLevel').value   = level;
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('editModal').classList.remove('open');
+}
+
+async function saveProgress() {
+  const id     = document.getElementById('editUserId').value;
+  const xp     = parseInt(document.getElementById('editXP').value)     || 0;
+  const streak = parseInt(document.getElementById('editStreak').value)  || 0;
+  const level  = parseInt(document.getElementById('editLevel').value)   || 1;
+
+  try {
+    const res = await fetch(`${API}/api/admin/user/${id}/progress`, {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json', Authorization:`Bearer ${token}`},
+      body: JSON.stringify({xp, streak, level})
+    });
+    if (res.ok) {
+      showToast('✅ Progress updated!');
+      closeModal();
+      await loadUsers();
+    } else {
+      showToast('❌ Update failed', true);
+    }
+  } catch(e) { showToast('❌ Server error', true); }
+}
+
+// Close modal on overlay click
+document.getElementById('editModal').addEventListener('click', function(e){
+  if(e.target === this) closeModal();
+});
+
+// ── TOAST ──
+function showToast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (err ? ' err' : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
