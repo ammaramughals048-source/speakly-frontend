@@ -439,6 +439,17 @@ async function processSignup(){
 
         if(response.ok){
             pendingEmail = userData.email;
+            const otp = data.otp;
+
+            // Send OTP via EmailJS
+            await emailjs.send('service_rpd92fu', 'template_u74rv04', {
+                to_name: userData.name,
+                to_email: userData.email,
+                email: userData.email,
+                from_name: 'Speakly',
+                message: `Your Speakly verification code is: ${otp}\n\nThis code expires in 10 minutes. Do not share it with anyone.`
+            });
+
             // Show OTP screen
             document.getElementById('formStep').style.display = 'none';
             document.getElementById('otpStep').style.display = 'block';
@@ -455,7 +466,7 @@ async function processSignup(){
     } catch(error){
         btn.textContent = 'Create My Account 🚀';
         btn.disabled = false;
-        showToast('❌ Server se connection nahi hua!');
+        showToast('❌ ' + (error.message || 'Server error!'));
     }
 }
 
@@ -524,10 +535,26 @@ async function resendOTP(){
             body: JSON.stringify({ email: pendingEmail })
         });
         const data = await res.json();
-        if(res.ok){ showToast('New OTP sent! 📧'); startResendTimer(60); }
-        else { showToast('❌ ' + data.message); resendBtn.style.pointerEvents='auto'; resendBtn.style.opacity='1'; }
+        if(res.ok){
+            // Send new OTP via EmailJS
+            await emailjs.send('service_rpd92fu', 'template_u74rv04', {
+                to_name: pendingEmail,
+                to_email: pendingEmail,
+                email: pendingEmail,
+                from_name: 'Speakly',
+                message: `Your new Speakly verification code is: ${data.otp}\n\nThis code expires in 10 minutes.`
+            });
+            showToast('New OTP sent! 📧');
+            startResendTimer(60);
+        } else {
+            showToast('❌ ' + data.message);
+            resendBtn.style.pointerEvents='auto';
+            resendBtn.style.opacity='1';
+        }
     } catch(err){
-        showToast('❌ Server error'); resendBtn.style.pointerEvents='auto'; resendBtn.style.opacity='1';
+        showToast('❌ Server error');
+        resendBtn.style.pointerEvents='auto';
+        resendBtn.style.opacity='1';
     }
 }
 
