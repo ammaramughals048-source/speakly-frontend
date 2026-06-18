@@ -227,14 +227,46 @@
     </div>
 </div>
 
+<!-- OTP VERIFICATION SCREEN -->
+<div id="otpStep" style="display:none;">
+    <div class="form-card" style="max-width:440px;margin:0 auto;text-align:center;">
+        <div style="font-size:3rem;margin-bottom:12px;">📧</div>
+        <h2 class="form-heading" style="margin-bottom:8px;">Check Your Email!</h2>
+        <p class="form-sub" style="margin-bottom:6px;">We sent a 6-digit code to</p>
+        <p style="color:var(--neon);font-weight:800;font-size:.95rem;margin-bottom:28px;" id="otpEmailDisplay"></p>
+
+        <div style="display:flex;gap:10px;justify-content:center;margin-bottom:20px;" id="otpInputs">
+            <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        </div>
+
+        <p id="otpError" style="color:#ff4b4b;font-size:.85rem;font-weight:700;min-height:20px;margin-bottom:12px;"></p>
+
+        <button class="submit-btn" id="verifyBtn" onclick="verifyOTP()" style="margin-bottom:14px;">Verify Email ✅</button>
+
+        <p style="color:var(--muted);font-size:.85rem;font-weight:600;">Didn't receive it?
+            <span id="resendBtn" onclick="resendOTP()" style="color:var(--neon);cursor:pointer;font-weight:800;">Resend Code</span>
+            <span id="resendTimer" style="color:var(--muted);font-weight:700;display:none;"></span>
+        </p>
+    </div>
+</div>
+
+<style>
+.otp-box{width:46px;height:54px;background:rgba(0,0,0,.4);border:2px solid rgba(255,255,255,.1);border-radius:12px;color:var(--neon);font-size:1.4rem;font-weight:900;text-align:center;outline:none;font-family:'Nunito',sans-serif;transition:.3s;}
+.otp-box:focus{border-color:var(--neon);box-shadow:0 0 12px rgba(0,242,254,.2);}
+</style>
+
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 <script>
-    AOS.init({
-    duration: 1000, // Animation kitni dair chale (1 second)
-    once: true,     // Kya animation sirf ek baar ho?
-  });
-let selectedRole='',captchaChecked=false;
+    AOS.init({ duration: 1000, once: true });
+let selectedRole='', captchaChecked=false;
+let pendingEmail = '';
 
 const validity={name:false,username:false,email:false,password:false,confirm:false,captcha:false};
 
@@ -383,10 +415,10 @@ emailjs.init('5gqlK7VXijPOo4sR-');
 
 async function processSignup(){
     if(!Object.values(validity).every(v=>v)) return;
-    
+
     const btn = document.getElementById('submitBtn');
-    btn.textContent = 'Creating Account... 🎉';
-    btn.style.background = 'var(--green)';
+    btn.textContent = 'Sending OTP... 📧';
+    btn.disabled = true;
 
     const userData = {
         name: document.getElementById('fullName').value.trim(),
@@ -406,37 +438,113 @@ async function processSignup(){
         const data = await response.json();
 
         if(response.ok){
-            localStorage.setItem('speakly_token', data.token);
-            localStorage.setItem('speakly_user', JSON.stringify(data.user));
-            localStorage.setItem('speakly_logged_in', 'true');
-            
-            // Send welcome email via EmailJS
-            try {
-                await emailjs.send('service_rpd92fu', 'template_u74rv04', {
-                    to_name: userData.name,
-                    to_email: userData.email,
-                    email: userData.email,
-                    verification_link: 'https://speakly-frontend-silk.vercel.app/login.html'
-                });
-                showToast('Account created! Check your email 📧');
-            } catch(emailErr) {
-                showToast('Account created! Welcome to Speakly 🎉');
-            }
-            
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 2000);
+            pendingEmail = userData.email;
+            // Show OTP screen
+            document.getElementById('formStep').style.display = 'none';
+            document.getElementById('otpStep').style.display = 'block';
+            document.getElementById('otpEmailDisplay').textContent = pendingEmail;
+            setupOTPInputs();
+            startResendTimer(60);
+            showToast('OTP sent! Check your inbox 📧');
         } else {
-            btn.textContent = 'Create Account →';
-            btn.style.background = '';
+            btn.textContent = 'Create My Account 🚀';
+            btn.disabled = false;
             showToast('❌ ' + data.message);
         }
 
     } catch(error){
-        btn.textContent = 'Create Account →';
-        btn.style.background = '';
+        btn.textContent = 'Create My Account 🚀';
+        btn.disabled = false;
         showToast('❌ Server se connection nahi hua!');
     }
+}
+
+function setupOTPInputs(){
+    const boxes = document.querySelectorAll('.otp-box');
+    boxes.forEach((box, i) => {
+        box.value = '';
+        box.addEventListener('input', () => {
+            box.value = box.value.replace(/\D/g,'');
+            if(box.value && i < boxes.length - 1) boxes[i+1].focus();
+        });
+        box.addEventListener('keydown', e => {
+            if(e.key === 'Backspace' && !box.value && i > 0) boxes[i-1].focus();
+        });
+    });
+    boxes[0].focus();
+}
+
+async function verifyOTP(){
+    const boxes = document.querySelectorAll('.otp-box');
+    const otp = Array.from(boxes).map(b => b.value).join('');
+    const errEl = document.getElementById('otpError');
+    const btn = document.getElementById('verifyBtn');
+
+    if(otp.length !== 6){ errEl.textContent = 'Please enter all 6 digits'; return; }
+
+    btn.textContent = 'Verifying... ⏳';
+    btn.disabled = true;
+    errEl.textContent = '';
+
+    try {
+        const res = await fetch('https://speakly-backend-production-9ef4.up.railway.app/api/auth/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: pendingEmail, otp })
+        });
+        const data = await res.json();
+
+        if(res.ok){
+            localStorage.setItem('speakly_token', data.token);
+            localStorage.setItem('speakly_user', JSON.stringify(data.user));
+            localStorage.setItem('speakly_logged_in', 'true');
+            showToast('✅ Email verified! Welcome to Speakly 🎉');
+            setTimeout(() => { window.location.href = 'dashboard.html'; }, 1800);
+        } else {
+            errEl.textContent = data.message || 'Invalid OTP';
+            btn.textContent = 'Verify Email ✅';
+            btn.disabled = false;
+        }
+    } catch(err){
+        errEl.textContent = 'Server error. Try again.';
+        btn.textContent = 'Verify Email ✅';
+        btn.disabled = false;
+    }
+}
+
+async function resendOTP(){
+    const resendBtn = document.getElementById('resendBtn');
+    resendBtn.style.pointerEvents = 'none';
+    resendBtn.style.opacity = '0.5';
+
+    try {
+        const res = await fetch('https://speakly-backend-production-9ef4.up.railway.app/api/auth/resend-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: pendingEmail })
+        });
+        const data = await res.json();
+        if(res.ok){ showToast('New OTP sent! 📧'); startResendTimer(60); }
+        else { showToast('❌ ' + data.message); resendBtn.style.pointerEvents='auto'; resendBtn.style.opacity='1'; }
+    } catch(err){
+        showToast('❌ Server error'); resendBtn.style.pointerEvents='auto'; resendBtn.style.opacity='1';
+    }
+}
+
+function startResendTimer(seconds){
+    const btn = document.getElementById('resendBtn');
+    const timer = document.getElementById('resendTimer');
+    btn.style.display = 'none'; timer.style.display = 'inline';
+    let s = seconds;
+    const interval = setInterval(() => {
+        timer.textContent = `Resend in ${s}s`;
+        s--;
+        if(s < 0){
+            clearInterval(interval);
+            btn.style.display='inline'; btn.style.pointerEvents='auto'; btn.style.opacity='1';
+            timer.style.display='none';
+        }
+    }, 1000);
 }
 
 function showToast(msg){
